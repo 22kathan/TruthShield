@@ -145,6 +145,16 @@ const TruthShield = (() => {
         animateBar('credibilityBar', 'credibilityValue', result.credibility);
         animateBar('grammarBar', 'grammarValue', result.quality);
 
+        // 3D Pie Chart for text analysis: Real vs Edited vs Fake
+        const realVal = result.trustScore;
+        const editVal = Math.round(((result.clickbait + result.sentiment) / 2) * (1 - realVal / 100));
+        const fakeVal = 100 - realVal - editVal;
+        draw3DPieChart('textPieChart3D', [
+          { label: 'Real / Authentic', value: realVal, color: '#3dba5c' },
+          { label: 'Edited / Sensationalized', value: editVal, color: '#f07a3a' },
+          { label: 'Fake / Misinformation', value: fakeVal, color: '#f05454' }
+        ], 'Text Authenticity Analysis');
+
         // Flags
         const flagsList = document.getElementById('flagsList');
         flagsList.innerHTML = result.flags.map(f => `
@@ -216,7 +226,7 @@ const TruthShield = (() => {
 
   async function processImage(file) {
     if (!file.type.startsWith('image/')) { toast('Please upload an image file', 'error'); return; }
-    if (file.size > 100 * 1024 * 1024) { toast('File too large. Max 100MB.', 'error'); return; }
+    if (file.size > 30 * 1024 * 1024) { toast('File too large. Max 30MB.', 'error'); return; }
 
     showLoading('Performing image analysis...');
 
@@ -268,6 +278,14 @@ const TruthShield = (() => {
           <span class="b-val" style="color:${b.color}">${b.value}%</span>
         </div>
       `).join('');
+
+      // 3D Pie Chart for image analysis: Real vs Edited vs AI Generated
+      const imgScores = result.provenance ? result.provenance.scores : { raw: 70, edit: 20, ai: 10 };
+      draw3DPieChart('imagePieChart3D', [
+        { label: 'Real / Authentic', value: imgScores.raw, color: '#3dba5c' },
+        { label: 'Edited / Modified', value: imgScores.edit, color: '#f07a3a' },
+        { label: 'AI Generated', value: imgScores.ai, color: '#c084fc' }
+      ], 'Image Authenticity Origin');
 
       // Metadata
       const meta = result.metadata;
@@ -345,7 +363,7 @@ const TruthShield = (() => {
 
   async function processVideo(file) {
     if (!file.type.startsWith('video/')) { toast('Please upload a video file', 'error'); return; }
-    if (file.size > 500 * 1024 * 1024) { toast('File too large. Max 500MB.', 'error'); return; }
+    if (file.size > 250 * 1024 * 1024) { toast('File too large. Max 250MB.', 'error'); return; }
 
     showLoading('Extracting and analyzing video frames...');
 
@@ -411,6 +429,14 @@ const TruthShield = (() => {
       } else {
         neuralVideoCard.style.display = 'none';
       }
+
+      // 3D Pie Chart for video analysis: Real vs Edited vs AI Generated
+      const vidScores = result.provenance ? result.provenance.scores : { raw: 70, edit: 20, ai: 10 };
+      draw3DPieChart('videoPieChart3D', [
+        { label: 'Real / Authentic', value: vidScores.raw, color: '#3dba5c' },
+        { label: 'Edited / Modified', value: vidScores.edit, color: '#f07a3a' },
+        { label: 'AI Generated / Deepfake', value: vidScores.ai, color: '#c084fc' }
+      ], 'Video Authenticity Origin');
 
       // Flags
       document.getElementById('videoFlags').innerHTML = result.flags.map(f => `
@@ -594,7 +620,7 @@ const TruthShield = (() => {
       img_title: 'Image Manipulation Detection',
       img_desc: 'Upload a photo to run Error Level Analysis, extract metadata, and detect AI-generation artifacts.',
       upload_img_main: 'Drop an image here, or browse',
-      upload_img_sub: 'JPG, PNG, WebP · Max 100 MB',
+      upload_img_sub: 'JPG, PNG, WebP · Max 30 MB',
       original_label: 'Original',
       ela_label: 'Error Level Analysis',
       ela_consistent: 'Consistent',
@@ -610,7 +636,7 @@ const TruthShield = (() => {
       vid_title: 'Deepfake Video Detection',
       vid_desc: 'Upload a video to extract frames and analyse them for temporal artifacts, face inconsistencies, and deepfake signatures.',
       upload_vid_main: 'Drop a video here, or browse',
-      upload_vid_sub: 'MP4, WebM, AVI · Max 500 MB',
+      upload_vid_sub: 'MP4, WebM, AVI · Max 250 MB',
       extracted_frames_label: 'Extracted frames',
       deepfake_confidence_label: 'Deepfake confidence',
       frame_consistency_label: 'Frame consistency',
@@ -728,7 +754,7 @@ const TruthShield = (() => {
       img_title: 'छवि हेरफेर पहचान',
       img_desc: 'त्रुटि स्तर विश्लेषण (ELA) चलाने, मेटाडेटा निकालने और एआई-जनरेशन कलाकृतियों का पता लगाने के लिए एक फोटो अपलोड करें।',
       upload_img_main: 'यहाँ एक छवि डालें, या ब्राउज़ करें',
-      upload_img_sub: 'JPG, PNG, WebP · अधिकतम 100 MB',
+      upload_img_sub: 'JPG, PNG, WebP · अधिकतम 30 MB',
       original_label: 'मूल छवि',
       ela_label: 'त्रुटि स्तर विश्लेषण',
       ela_consistent: 'सुसंगत',
@@ -744,7 +770,7 @@ const TruthShield = (() => {
       vid_title: 'डीपफेक वीडियो पहचान',
       vid_desc: 'वीडियो के फ़्रेम निकालने और उनमें अस्थायी विसंगतियों, चेहरे की बेमेल संरचना और डीपफेक हस्ताक्षरों के विश्लेषण के लिए वीडियो अपलोड करें।',
       upload_vid_main: 'यहाँ एक वीडियो डालें, या ब्राउज़ करें',
-      upload_vid_sub: 'MP4, WebM, AVI · अधिकतम 500 MB',
+      upload_vid_sub: 'MP4, WebM, AVI · अधिकतम 250 MB',
       extracted_frames_label: 'निकाले गए फ़्रेम',
       deepfake_confidence_label: 'डीपफेक आत्मविश्वास',
       frame_consistency_label: 'फ़्रेम निरंतरता',
@@ -862,7 +888,7 @@ const TruthShield = (() => {
       img_title: 'છબી હેરફેર શોધ',
       img_desc: 'ભૂલ સ્તર વિશ્લેષણ (ELA) ચલાવવા, મેટાડેટા કાઢવા અને AI-જનરેશન આર્ટિફેક્ટ્સ શોધવા માટે ફોટો અપલોડ કરો.',
       upload_img_main: 'અહીં એક છબી મૂકો, અથવા બ્રાઉઝ કરો',
-      upload_img_sub: 'JPG, PNG, WebP · મહત્તમ 100 MB',
+      upload_img_sub: 'JPG, PNG, WebP · મહત્તમ 30 MB',
       original_label: 'મૂળ છબી',
       ela_label: 'ભૂલ સ્તર વિશ્લેષણ',
       ela_consistent: 'સુસંગત',
@@ -878,7 +904,7 @@ const TruthShield = (() => {
       vid_title: 'ડીપફેક વિડિઓ શોધ',
       vid_desc: 'વિડિઓમાંથી ફ્રેમ કાઢવા અને અસ્થાયી વિસંગતતાઓ, ચહેરાની અસંગતતાઓ અને ડીપફેક સહીઓ માટે તેનું વિશ્લેષણ કરવા માટે વિડિઓ અપલોડ કરો.',
       upload_vid_main: 'અહીં એક વિડિઓ મૂકો, અથવા બ્રાઉઝ કરો',
-      upload_vid_sub: 'MP4, WebM, AVI · મહત્તમ 500 MB',
+      upload_vid_sub: 'MP4, WebM, AVI · મહત્તમ 250 MB',
       extracted_frames_label: 'કાઢવામાં આવેલી ફ્રેમ્સ',
       deepfake_confidence_label: 'ડીપફેક આત્મવિશ્વાસ',
       frame_consistency_label: 'ફ્રેમ સુસંગતતા',
@@ -996,7 +1022,7 @@ const TruthShield = (() => {
       img_title: 'பட கையாளுதல் கண்டறிதல்',
       img_desc: 'பிழை நிலை பகுப்பாய்வு (ELA) இயக்கவும், மெட்டாடேட்டாவை பிரித்தெடுக்கவும், மற்றும் AI-உருவாக்க கலைப்பொருட்களைக் கண்டறியவும் புகைப்படத்தைப் பதிவேற்றவும்.',
       upload_img_main: 'இங்கே ஒரு படத்தை இழுத்துப் போடவும், அல்லது உலாவவும்',
-      upload_img_sub: 'JPG, PNG, WebP · அதிகபட்சம் 100 MB',
+      upload_img_sub: 'JPG, PNG, WebP · அதிகபட்சம் 30 MB',
       original_label: 'அசல் படம்',
       ela_label: 'பிழை நிலை பகுப்பாய்வு',
       ela_consistent: 'சீரானது',
@@ -1012,7 +1038,7 @@ const TruthShield = (() => {
       vid_title: 'டீப்ஃபேக் வீடியோ கண்டறிதல்',
       vid_desc: 'வீடியோவிலிருந்து பிரேம்களைப் பிரித்தெடுக்கவும் மற்றும் தற்காலிக முரண்பாடுகள், முக முரண்பாடுகள் மற்றும் டீப்ஃபேக் கையொப்பங்களுக்கு அவற்றை பகுப்பாய்வு செய்யவும்.',
       upload_vid_main: 'இங்கே ஒரு வீடியோவை இழுத்துப் போடவும், அல்லது உலாவவும்',
-      upload_vid_sub: 'MP4, WebM, AVI · அதிகபட்சம் 500 MB',
+      upload_vid_sub: 'MP4, WebM, AVI · அதிகபட்சம் 250 MB',
       extracted_frames_label: 'பிரித்தெடுக்கப்பட்ட பிரேம்கள்',
       deepfake_confidence_label: 'டீப்ஃபேக் நம்பிக்கை',
       frame_consistency_label: 'பிரேம் நிலைத்தன்மை',
@@ -1276,6 +1302,207 @@ const TruthShield = (() => {
     ctx.arc(centerX, centerY, innerRadius - 1, 0, Math.PI * 2);
     ctx.fillStyle = '#1a1a1f';
     ctx.fill();
+  }
+
+  // ==================== 3D PIE CHART ====================
+  function draw3DPieChart(canvasId, data, title) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+
+    const displayW = canvas.parentElement ? canvas.parentElement.offsetWidth : 340;
+    const displayH = 300;
+    canvas.style.width = displayW + 'px';
+    canvas.style.height = displayH + 'px';
+    canvas.width = displayW * dpr;
+    canvas.height = displayH * dpr;
+    ctx.scale(dpr, dpr);
+
+    // Filter out zero-value slices
+    const filteredData = data.filter(d => d.value > 0);
+    if (filteredData.length === 0) return;
+    const total = filteredData.reduce((sum, d) => sum + d.value, 0);
+
+    // Build slices
+    const slices = [];
+    let currentAngle = -Math.PI / 2;
+    filteredData.forEach(d => {
+      const sliceAngle = (d.value / total) * Math.PI * 2;
+      slices.push({
+        startAngle: currentAngle,
+        endAngle: currentAngle + sliceAngle,
+        color: d.color,
+        label: d.label,
+        value: d.value,
+        percentage: Math.round((d.value / total) * 100)
+      });
+      currentAngle += sliceAngle;
+    });
+
+    // Heuristics for responsive mobile layout
+    const isMobile = displayW < 380;
+    let centerX, centerY, radiusX, radiusY, depth;
+    let legendX, legendY, legendSpacing;
+
+    if (isMobile) {
+      centerX = displayW * 0.5;
+      centerY = 90;
+      radiusX = Math.min(displayW * 0.28, 80);
+      radiusY = radiusX * 0.52;
+      depth = 15;
+      legendX = 20;
+      legendSpacing = 22;
+      legendY = 165;
+    } else {
+      centerX = displayW * 0.32;
+      centerY = displayH * 0.42;
+      radiusX = Math.min(displayW * 0.24, 100);
+      radiusY = radiusX * 0.52;
+      depth = 20;
+      legendX = centerX + radiusX + 30;
+      legendSpacing = 26;
+      const totalLegendH = slices.length * legendSpacing;
+      legendY = Math.max(14, centerY - totalLegendH / 2);
+    }
+
+    // Color helpers
+    function parseHex(c) {
+      if (c.startsWith('#') && c.length === 7) {
+        return [parseInt(c.slice(1,3),16), parseInt(c.slice(3,5),16), parseInt(c.slice(5,7),16)];
+      }
+      return [91, 124, 250]; // fallback accent color
+    }
+
+    function darkenColor(c, f) {
+      const [r,g,b] = parseHex(c);
+      return `rgb(${Math.round(r*f)},${Math.round(g*f)},${Math.round(b*f)})`;
+    }
+
+    function lightenColor(c, f) {
+      const [r,g,b] = parseHex(c);
+      return `rgb(${Math.min(255,Math.round(r+(255-r)*f))},${Math.min(255,Math.round(g+(255-g)*f))},${Math.min(255,Math.round(b+(255-b)*f))})`;
+    }
+
+    // Trace elliptical arc using only lineTo (path-safe)
+    function traceArc(cx, cy, rx, ry, a1, a2) {
+      const n = Math.max(20, Math.ceil(Math.abs(a2 - a1) * 40));
+      for (let i = 0; i <= n; i++) {
+        const a = a1 + (a2 - a1) * (i / n);
+        ctx.lineTo(cx + rx * Math.cos(a), cy + ry * Math.sin(a));
+      }
+    }
+
+    ctx.clearRect(0, 0, displayW, displayH);
+
+    // === Layer 1: 3D side extrusion ===
+    slices.forEach(slice => {
+      const vs = Math.max(slice.startAngle, 0);
+      const ve = Math.min(slice.endAngle, Math.PI);
+      if (vs >= ve) return;
+
+      ctx.beginPath();
+      ctx.moveTo(centerX + radiusX * Math.cos(vs), centerY + depth + radiusY * Math.sin(vs));
+      traceArc(centerX, centerY + depth, radiusX, radiusY, vs, ve);
+      traceArc(centerX, centerY, radiusX, radiusY, ve, vs);
+      ctx.closePath();
+
+      const sg = ctx.createLinearGradient(centerX, centerY, centerX, centerY + depth);
+      sg.addColorStop(0, darkenColor(slice.color, 0.6));
+      sg.addColorStop(1, darkenColor(slice.color, 0.3));
+      ctx.fillStyle = sg;
+      ctx.fill();
+      ctx.strokeStyle = darkenColor(slice.color, 0.2);
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+    });
+
+    // === Layer 2: Top face (main pie) ===
+    slices.forEach(slice => {
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      traceArc(centerX, centerY, radiusX, radiusY, slice.startAngle, slice.endAngle);
+      ctx.lineTo(centerX, centerY);
+      ctx.closePath();
+
+      const mid = (slice.startAngle + slice.endAngle) / 2;
+      const gx = centerX + radiusX * 0.25 * Math.cos(mid);
+      const gy = centerY + radiusY * 0.25 * Math.sin(mid);
+      const grad = ctx.createRadialGradient(gx, gy, 0, centerX, centerY, radiusX);
+      grad.addColorStop(0, lightenColor(slice.color, 0.4));
+      grad.addColorStop(0.55, slice.color);
+      grad.addColorStop(1, darkenColor(slice.color, 0.65));
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+
+    // === Layer 3: Gloss highlight ===
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
+    ctx.clip();
+    const hg = ctx.createRadialGradient(
+      centerX - radiusX * 0.3, centerY - radiusY * 0.45, 0,
+      centerX, centerY, radiusX * 0.95
+    );
+    hg.addColorStop(0, 'rgba(255,255,255,0.22)');
+    hg.addColorStop(0.45, 'rgba(255,255,255,0.06)');
+    hg.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = hg;
+    ctx.fillRect(centerX - radiusX, centerY - radiusY, radiusX * 2, radiusY * 2);
+    ctx.restore();
+
+    // === Layer 4: Ground shadow ===
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-over';
+    ctx.beginPath();
+    ctx.ellipse(centerX + 2, centerY + depth + 8, radiusX + 5, radiusY + 3, 0, 0, Math.PI * 2);
+    const shg = ctx.createRadialGradient(centerX + 2, centerY + depth + 8, radiusX * 0.25,
+      centerX + 2, centerY + depth + 8, radiusX + 8);
+    shg.addColorStop(0, 'rgba(0,0,0,0.3)');
+    shg.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = shg;
+    ctx.fill();
+    ctx.restore();
+
+    // === Layer 5: Legend ===
+    slices.forEach((slice, i) => {
+      const y = legendY + i * legendSpacing;
+
+      // Color circle
+      ctx.fillStyle = slice.color;
+      ctx.beginPath();
+      ctx.arc(legendX + 5, y + 5, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Label
+      ctx.fillStyle = '#9a9aab';
+      ctx.font = '500 10.5px DM Sans, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(slice.label, legendX + 16, y + 9);
+
+      // Percentage
+      ctx.fillStyle = '#e8e8ec';
+      ctx.font = '700 10.5px DM Sans, sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(slice.percentage + '%', displayW - 20, y + 9);
+      ctx.textAlign = 'left';
+    });
+
+    // Title
+    if (title) {
+      ctx.fillStyle = '#5e5e70';
+      ctx.font = '600 9.5px DM Sans, sans-serif';
+      ctx.textAlign = 'center';
+      if (isMobile) {
+        ctx.fillText(title.toUpperCase(), displayW / 2, 20);
+      } else {
+        ctx.fillText(title.toUpperCase(), displayW / 2, displayH - 10);
+      }
+    }
   }
 
   // ==================== UTILITIES ====================

@@ -151,6 +151,12 @@
             <div class="metric"><span class="metric-name" data-i18n="metric_quality">Writing quality</span><div class="bar-track"><div class="bar-fill" id="grammarBar"></div></div><span class="metric-val" id="grammarValue">0%</span></div>
           </div>
 
+          <!-- 3D Pie Chart: Text Analysis -->
+          <div class="card pie-chart-card">
+            <p class="card-label"><i class="fas fa-chart-pie"></i> ML Analysis Breakdown (3D)</p>
+            <div class="pie-chart-wrap"><canvas id="textPieChart3D"></canvas></div>
+          </div>
+
           <!-- NLP: Stance Detection -->
           <div class="card" id="stanceCard">
             <p class="card-label" data-i18n="stance_detection_label">Stance Detection</p>
@@ -195,7 +201,7 @@
         <div class="upload-inner">
           <div class="upload-icon-wrap"><i class="fas fa-arrow-up-from-bracket"></i></div>
           <p class="upload-main" data-i18n="upload_img_main">Drop an image here, or <label for="imageFileInput" class="link">browse</label></p>
-          <p class="upload-sub" data-i18n="upload_img_sub">JPG, PNG, WebP · Max 100 MB</p>
+          <p class="upload-sub" data-i18n="upload_img_sub">JPG, PNG, WebP · Max 30 MB</p>
           <input type="file" id="imageFileInput" accept="image/*" hidden>
         </div>
       </div>
@@ -237,6 +243,12 @@
             <div class="breakdown-list" id="imageBreakdown"></div>
           </div>
 
+          <!-- 3D Pie Chart: Image Analysis -->
+          <div class="card pie-chart-card">
+            <p class="card-label"><i class="fas fa-chart-pie"></i> ML Analysis Breakdown (3D)</p>
+            <div class="pie-chart-wrap"><canvas id="imagePieChart3D"></canvas></div>
+          </div>
+
           <div class="card" id="neuralSceneCard" style="display:none;">
             <p class="card-label" data-i18n="neural_classification_label">Neural Scene Classification</p>
             <div class="prediction-items" id="imagePredictions"></div>
@@ -273,7 +285,7 @@
         <div class="upload-inner">
           <div class="upload-icon-wrap"><i class="fas fa-film"></i></div>
           <p class="upload-main" data-i18n="upload_vid_main">Drop a video here, or <label for="videoFileInput" class="link">browse</label></p>
-          <p class="upload-sub" data-i18n="upload_vid_sub">MP4, WebM, AVI · Max 500 MB</p>
+          <p class="upload-sub" data-i18n="upload_vid_sub">MP4, WebM, AVI · Max 250 MB</p>
           <input type="file" id="videoFileInput" accept="video/*" hidden>
         </div>
       </div>
@@ -305,6 +317,12 @@
           <div class="card">
             <p class="card-label" data-i18n="frame_consistency_label">Frame consistency</p>
             <canvas id="consistencyChart" height="160"></canvas>
+          </div>
+
+          <!-- 3D Pie Chart: Video Analysis -->
+          <div class="card pie-chart-card">
+            <p class="card-label"><i class="fas fa-chart-pie"></i> ML Analysis Breakdown (3D)</p>
+            <div class="pie-chart-wrap"><canvas id="videoPieChart3D"></canvas></div>
           </div>
 
           <div class="card">
