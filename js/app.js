@@ -1298,10 +1298,7 @@ const TruthShield = (() => {
       startAngle = endAngle;
     });
 
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, innerRadius - 1, 0, Math.PI * 2);
-    ctx.fillStyle = '#1a1a1f';
-    ctx.fill();
+    // Donut hole is naturally transparent due to reverse path tracing
   }
 
   // ==================== 3D PIE CHART ====================
@@ -1341,7 +1338,7 @@ const TruthShield = (() => {
     });
 
     // Heuristics for responsive mobile layout
-    const isMobile = displayW < 380;
+    const isMobile = displayW < 450;
     let centerX, centerY, radiusX, radiusY, depth;
     let legendX, legendY, legendSpacing;
 
