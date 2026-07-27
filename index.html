@@ -28,6 +28,7 @@
       <a href="#" class="nav-link" data-section="text-analysis" id="nav-text" data-i18n="nav_text">Text</a>
       <a href="#" class="nav-link" data-section="image-analysis" id="nav-image" data-i18n="nav_image">Image</a>
       <a href="#" class="nav-link" data-section="video-analysis" id="nav-video" data-i18n="nav_video">Video</a>
+      <a href="#" class="nav-link" data-section="soc-operations" id="nav-soc"><i class="fas fa-shield-halved"></i> SOC Operations</a>
       <a href="#" class="nav-link" data-section="media-literacy" id="nav-literacy" data-i18n="nav_literacy">Learn</a>
     </div>
     <div class="nav-right">
@@ -305,6 +306,11 @@
           <div class="card">
             <p class="card-label" data-i18n="findings_label">Findings</p>
             <div class="flags-list" id="imageFlags"></div>
+            <div style="margin-top: 1rem; text-align: right;">
+              <button class="btn btn-primary" onclick="TruthShield.exportForensicReport('image');">
+                <i class="fas fa-file-pdf"></i> Export Forensic PDF Report
+              </button>
+            </div>
           </div>
 
           <!-- Generative AI Co-Pilot Card -->
@@ -400,6 +406,11 @@
           <div class="card">
             <p class="card-label" data-i18n="detection_results_label">Detection results</p>
             <div class="flags-list" id="videoFlags"></div>
+            <div style="margin-top: 1rem; text-align: right;">
+              <button class="btn btn-primary" onclick="TruthShield.exportForensicReport('video');">
+                <i class="fas fa-file-pdf"></i> Export Forensic PDF Report
+              </button>
+            </div>
           </div>
 
           <!-- Generative AI Co-Pilot Card -->
@@ -419,6 +430,55 @@
                 <button class="ai-send-btn" id="videoSendBtn" disabled><i class="fas fa-paper-plane"></i></button>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SOC OPERATIONS COMMAND CENTER ========== -->
+    <section id="soc-operations" class="section">
+      <div class="page-head">
+        <h1><i class="fas fa-shield-halved"></i> Cyber SOC Operations &amp; Threat Intelligence Command</h1>
+        <p>Real-time threat monitoring, MITRE ATT&amp;CK technique mapping, SOAR playbook automation, and Cryptographic Hash Registry.</p>
+      </div>
+
+      <div class="soc-grid">
+        <!-- Live Threat Stream & Radar -->
+        <div class="soc-card soc-col-8">
+          <h3><i class="fas fa-satellite-dish"></i> Live Media Threat Stream &amp; MITRE ATT&amp;CK Radar</h3>
+          <div class="soc-stream-container" id="socThreatStream">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Threat Actor Attribution -->
+        <div class="soc-card soc-col-4">
+          <h3><i class="fas fa-users-viewfinder"></i> Threat Actor Attribution Matrix</h3>
+          <div id="socThreatActorsList">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- SOAR Playbooks -->
+        <div class="soc-card soc-col-12">
+          <h3><i class="fas fa-gears"></i> SOAR Automated Security Playbooks</h3>
+          <div class="soar-playbooks-grid" id="soarPlaybooksGrid">
+            <!-- Populated dynamically -->
+          </div>
+          <div class="soar-console-output" id="soarConsoleOutput">
+            [SOAR ENGINE] Ready. Select a playbook above to execute automated incident response...
+          </div>
+        </div>
+
+        <!-- Cryptographic Threat Hash Registry -->
+        <div class="soc-card soc-col-12">
+          <h3><i class="fas fa-vault"></i> Cryptographic Threat Hash Registry &amp; Evidentiary Search</h3>
+          <div class="hash-search-bar">
+            <input type="text" class="hash-input" id="hashSearchInput" placeholder="Search SHA-256 Hash or Threat Keyword (e.g. 8f93a0b4..., Deepfake, GAN)...">
+            <button class="btn btn-primary" id="hashSearchBtn"><i class="fas fa-magnifying-glass"></i> Search Vault</button>
+          </div>
+          <div id="hashSearchResults">
+            <!-- Results populated dynamically -->
           </div>
         </div>
       </div>
@@ -521,6 +581,13 @@
   <script src="js/nlpEngine.js?v=1.2"></script>
   <script src="js/textAnalyzer.js?v=1.2"></script>
   <script src="js/provenanceDetector.js?v=1.2"></script>
+  <script src="js/transformerEngine.js?v=2.0"></script>
+  <script src="js/provenanceSuite.js?v=2.0"></script>
+  <script src="js/audioDeepfakeDetector.js?v=2.0"></script>
+  <script src="js/reportGenerator.js?v=2.0"></script>
+  <script src="js/socEngine.js?v=3.0"></script>
+  <script src="js/soarPlaybooks.js?v=3.0"></script>
+  <script src="js/cryptoVault.js?v=3.0"></script>
   <script src="js/imageAnalyzer.js?v=1.2"></script>
   <script src="js/videoAnalyzer.js?v=1.2"></script>
   <script src="js/app.js?v=1.2"></script>

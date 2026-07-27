@@ -1,69 +1,68 @@
-# 🛡️ TruthShield: AI-Driven Media Verification System
+# 🛡️ TruthShield: Enterprise Cyber-SOC & Threat Intelligence Suite
 
-**An advanced, client-side digital forensics and semantic check suite for detecting fake news, image manipulation, and video deepfakes.**
+**An advanced, enterprise-grade Cyber Security Operations Center (SOC), Threat Intelligence Engine, and AI Media Verification Suite.**
 
-TruthShield is a unified, user-friendly desktop interface designed to combat digital misinformation and media tampering. Leveraging **TensorFlow.js** for browser-side, GPU-accelerated neural networks, the system operates entirely client-side, ensuring privacy and rapid evaluation without requiring server-side heavy-processing backend pipelines.
-
-Developed under the conceptual requirements of the Cyber Crime Branch, Ahmedabad City Police.
+TruthShield is a unified, privacy-first cybersecurity platform designed to combat digital misinformation, deepfake videos, C2PA provenance forgery, and coordinated disinfo botnet attacks. Developed under the conceptual requirements of the Cyber Crime Branch, Ahmedabad City Police.
 
 ---
 
-## ✨ Key Forensic Pillars & ML Architecture
+## ✨ Key Enterprise Cyber-Security Pillars
 
-### 1. 📝 Text Verification (Fake News & Stance Analysis)
-*   **Universal Sentence Encoder (USE)**: Embeds inputs into 512-dimensional semantic vectors.
-*   **Cosine Similarity Matching**: Computes similarity scores against a database of known misinformation and regional language hoaxes.
-*   **Zero-Shot Stance Detection**: Performs nearest-centroid classification across assertion, hedging, denial, questioning, and attribution stance vectors to understand the text's communicative profile.
-*   **Traditional NLP Fallback**: Employs tf-idf vectorization and rule-based stance marker lexicons if GPU backend initialization is bypassed.
+### 1. 📡 Cyber SOC Command Center & Live Threat Radar (`js/socEngine.js`)
+*   **Real-Time Threat Ticker**: Streams live media threats (Deepfake Spear Phishing, GAN Manipulation, Synthetic Voice Cloning, C2PA Forgery).
+*   **MITRE ATT&CK Mapping**: Maps every media threat directly to official MITRE ATT&CK techniques (`T1566`, `T1584`, `T1588`).
+*   **Threat Actor Attribution Matrix**: Calculates attribution confidence scores for known adversary groups (e.g. *APT-41 Disinfo Group*, *Synthetics Syndicate*).
 
-### 2. 🖼️ Image Forensic Scanner (Splicing & GAN Fingerprints)
-*   **Error Level Analysis (ELA)**: Resaves the image at a known compression level to highlight pixel variance and highlight splicing boundaries.
-*   **Custom CNN Edge Classifier**: A convolutional neural network built in TF.js (`Conv2D` -> `MaxPooling2D` -> `Flatten` -> `Dense`) that scans local patch layers of the ELA canvas for compression anomalies.
-*   **MobileNet V2 Scene Classifier**: Identifies primary image entities (e.g. syringes, lemons, crowds) with confidence metrics to detect manipulation context.
+### 2. ⚙️ SOAR Automated Incident Response Playbooks (`js/soarPlaybooks.js`)
+*   **`PB-101: Emergency Campaign Isolation`**: Quarantines media hashes, blocks domains, and broadcasts DNS sinkholes.
+*   **`PB-102: Police Cyber Cell Evidence Export`**: Compiles formal police FIR evidentiary bundles with HMAC-SHA256 digital seals.
+*   **`PB-103: Automated CERT-In Takedown Dispatch`**: Issues RFC-compliant abuse & takedown notices to domain registrars.
+*   **`PB-104: Botnet Vector Analysis`**: Filters viral redistribution vectors across social networks.
 
-### 3. 📹 Video Deepfake Forensics (Temporal Stability)
-*   **Frame-by-Frame Classification**: Extracts frame slices from user-uploaded video timelines.
-*   **Temporal Neural Stability Checker**: Measures the variance and change frequency of top MobileNet predictions between consecutive frames. Sudden flickering changes indicate splicing and frame-morphing artifacts common in deepfakes.
+### 3. 🔐 Cryptographic Evidentiary Vault (`js/cryptoVault.js`)
+*   **HMAC-SHA256 Evidence Sealing**: Generates tamper-evident cryptographic seals for digital media evidence.
+*   **Searchable Threat Hash Registry**: Queryable database of flagged SHA-256 deepfake and malware hashes.
+
+### 4. 🖼️ Vision Transformer & Frequency Forensics (`js/transformerEngine.js`)
+*   **DCT Spectrum Anomaly Scanner**: Analyzes 8x8 Discrete Cosine Transform matrices for GAN/Diffusion grid noise.
+*   **C2PA Manifest Inspector (`provenanceSuite.js`)**: Verifies digital chain-of-custody envelopes.
+
+### 5. 📹 Facial & Audio Deepfake Inspection (`js/audioDeepfakeDetector.js`)
+*   **Facial Landmark Morphing & Blinking Stability**: Detects eye rhythm anomalies across video frames.
+*   **Web Audio API FFT Analyzer**: Inspects audio tracks for synthetic voice cloning frequency dropoffs.
 
 ---
 
 ## 🛠️ Technology Stack
-*   **Frontend**: HTML5, Vanilla CSS (Dark tech theme with glassmorphism and modern UI elements), and JavaScript (ES6+).
-*   **Deep Learning Backend**: TensorFlow.js (WebGL backend for hardware acceleration, fallback to CPU).
-*   **Pretrained Models**: MobileNet V2 (Image & Video classifier), Universal Sentence Encoder (Text semantics).
-*   **Icons & Fonts**: FontAwesome, Google Fonts (Space Grotesk & Inter).
+
+*   **Frontend**: HTML5, Vanilla CSS (Cyberpunk dark SOC aesthetic), JavaScript (ES6+).
+*   **Neural & Signal Processing Backend**: TensorFlow.js (WebGL), Web Audio API (FFT), Discrete Cosine Transform (DCT-II).
+*   **Security Standard Mappings**: MITRE ATT&CK Matrix, CERT-In RFC Takedown Protocols, HMAC-SHA256 Evidentiary Seals.
 
 ---
 
 ## 📂 Project Structure
-*   `index.html` — Core web portal, dashboards, and custom canvas elements.
-*   `css/style.css` — High-fidelity theme styling, loading indicators, and responsiveness.
-*   `js/mlCore.js` — TensorFlow.js orchestrator, model downloader, and CNN model constructor.
-*   `js/nlpEngine.js` — Heuristics-based text analyzer (fallback).
-*   `js/textAnalyzer.js` — Text verification pipeline combining USE and metadata checks.
-*   `js/imageAnalyzer.js` — ELA generator, MobileNet scene predictor, and CNN anomaly scanner.
-*   `js/videoAnalyzer.js` — Video timeline frame loader and temporal neural stability scorer.
-*   `js/app.js` — Orchestrates tab navigation, file upload triggers, and results rendering.
+
+*   `index.html` — SOC Operations Portal, Tab Navigation, and Dashboards.
+*   `css/style.css` — High-tech SOC Command Center theme, radar canvas, terminal logs, and printable report CSS.
+*   `js/socEngine.js` — SOC Threat Intelligence Feed & MITRE ATT&CK mapping engine.
+*   `js/soarPlaybooks.js` — SOAR automated incident response playbooks execution engine.
+*   `js/cryptoVault.js` — HMAC-SHA256 evidence sealing & searchable threat hash vault.
+*   `js/transformerEngine.js` — DCT frequency domain spectrum & ViT feature analyzer.
+*   `js/provenanceSuite.js` — C2PA manifest, EXIF metadata, and digital chain-of-custody suite.
+*   `js/audioDeepfakeDetector.js` — Facial landmark morphing & audio FFT voice cloning detector.
+*   `js/reportGenerator.js` — Downloadable & printable Forensic Audit Report modal.
+*   `js/app.js` — Application controller & Public API.
 
 ---
 
 ## 🚀 Running Locally
 
-Since the application utilizes client-side TensorFlow.js, it can be run via any local HTTP server:
-
-### Python HTTP Server
 ```bash
-# Navigate to the project directory
+# Navigate to project directory
 cd TruthShield
 
-# Start Python's built-in server
-python -m http.server 8000
+# Launch local HTTP server
+python -m http.server 8008
 ```
-Open your browser and navigate to `http://localhost:8000`.
-
-### Node.js http-server
-```bash
-npm install -g http-server
-http-server -p 8000
-```
-Open your browser and navigate to `http://localhost:8000`.
+Open your browser and navigate to `http://localhost:8008`.

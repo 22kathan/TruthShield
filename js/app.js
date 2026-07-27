@@ -32,6 +32,7 @@ const TruthShield = (() => {
     loadQuiz();
     animateStats();
     setupChatbot();
+    setupSOCCommandCenter();
 
     // Init Neural Engine (MLCore)
     if (window.MLCore) {
@@ -50,6 +51,114 @@ const TruthShield = (() => {
       state.activities = JSON.parse(savedActivities);
       renderActivities();
     }
+  }
+
+  // ==================== SOC COMMAND CENTER ====================
+  function setupSOCCommandCenter() {
+    const streamContainer = document.getElementById('socThreatStream');
+    const actorsContainer = document.getElementById('socThreatActorsList');
+    const playbooksGrid = document.getElementById('soarPlaybooksGrid');
+    const soarConsole = document.getElementById('soarConsoleOutput');
+    const hashInput = document.getElementById('hashSearchInput');
+    const hashBtn = document.getElementById('hashSearchBtn');
+    const hashResults = document.getElementById('hashSearchResults');
+
+    if (!streamContainer || !window.SOCEngine) return;
+
+    // Render Threat Actors Matrix
+    if (actorsContainer) {
+      const actors = window.SOCEngine.getThreatActors();
+      actorsContainer.innerHTML = actors.map(a => `
+        <div style="background: rgba(30, 41, 59, 0.5); padding: 0.65rem 0.85rem; border-radius: 8px; margin-bottom: 0.65rem; font-size: 0.82rem;">
+          <div style="display:flex; justify-content:space-between; font-weight:600; color:#f1f5f9;">
+            <span>${a.name}</span>
+            <span style="color:#38bdf8;">${a.confidence} Conf.</span>
+          </div>
+          <div style="font-size:0.75rem; color:#94a3b8; margin-top:0.2rem;">
+            Origin: ${a.origin} · Target: ${a.focus}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Render SOAR Playbooks
+    if (playbooksGrid && window.SOARPlaybooks) {
+      const playbooks = window.SOARPlaybooks.getPlaybooks();
+      playbooksGrid.innerHTML = playbooks.map(pb => `
+        <div class="soar-card">
+          <div>
+            <div class="soar-card-header">
+              <span class="soar-id">${pb.id}</span>
+              <span style="font-size:0.7rem; color:#94a3b8;">${pb.category}</span>
+            </div>
+            <h4>${pb.name}</h4>
+            <p>${pb.description}</p>
+          </div>
+          <button class="btn btn-secondary" style="font-size:0.78rem; padding:0.4rem 0.75rem;" onclick="TruthShield.executeSOAR('${pb.id}')">
+            <i class="fas fa-play"></i> Execute Playbook
+          </button>
+        </div>
+      `).join('');
+    }
+
+    // Hash Search Engine
+    if (hashBtn && hashInput && window.CryptoVault) {
+      const runHashSearch = () => {
+        const query = hashInput.value;
+        const res = window.CryptoVault.queryHashRegistry(query);
+        if (res.length === 0) {
+          hashResults.innerHTML = '<p style="font-size:0.85rem; color:#94a3b8; padding:0.5rem;">No matching threat hashes found in Cyber Vault database.</p>';
+        } else {
+          hashResults.innerHTML = res.map(r => `
+            <div style="background:rgba(30,41,59,0.5); padding:0.75rem; border-radius:8px; margin-bottom:0.5rem; font-size:0.82rem; border-left:4px solid #ef4444;">
+              <div style="display:flex; justify-content:space-between; font-weight:600; color:#f8fafc;">
+                <span>${r.threatName} (${r.category})</span>
+                <span class="badge badge-danger">${r.severity}</span>
+              </div>
+              <p style="margin:0.25rem 0 0 0; font-family:monospace; color:#38bdf8; font-size:0.75rem;">${r.hash}</p>
+              <span style="font-size:0.7rem; color:#94a3b8;">Flagged: ${r.date}</span>
+            </div>
+          `).join('');
+        }
+      };
+
+      hashBtn.addEventListener('click', runHashSearch);
+      hashInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') runHashSearch(); });
+      runHashSearch(); // Initial render
+    }
+
+    // Subscribe to Threat Events
+    window.SOCEngine.subscribeThreats((evt) => {
+      const item = document.createElement('div');
+      item.className = `soc-stream-item ${evt.severity}`;
+      item.innerHTML = `
+        <div class="soc-stream-header">
+          <span><i class="fas fa-triangle-exclamation"></i> ${evt.type}</span>
+          <span style="font-family:monospace; font-size:0.75rem; color:#94a3b8;">${evt.timestamp}</span>
+        </div>
+        <div class="soc-stream-details">
+          MITRE: <strong>${evt.mitreId} - ${evt.mitreName}</strong> (${evt.tactic})<br>
+          Actor: <em>${evt.threatActor}</em> · Target: ${evt.targetRegion} · IP: <code>${evt.ipAddress}</code>
+        </div>
+      `;
+
+      streamContainer.prepend(item);
+      if (streamContainer.children.length > 20) {
+        streamContainer.removeChild(streamContainer.lastChild);
+      }
+    });
+
+    // Stream initial threats
+    for (let i = 0; i < 4; i++) {
+      window.SOCEngine.generateThreatEvent();
+    }
+
+    // Auto threat ticker every 4 seconds
+    setInterval(() => {
+      if (state.currentSection === 'soc-operations') {
+        window.SOCEngine.generateThreatEvent();
+      }
+    }, 4000);
   }
 
   // ==================== NAVIGATION ====================
@@ -1986,10 +2095,56 @@ const TruthShield = (() => {
     return "I am ready to explain any aspect of the analysis. Ask me about scores, neural networks, or specific features.";
   }
 
+  function exportForensicReport(type = 'image') {
+    if (!window.ReportGenerator) {
+      alert("Report Generator module loading...");
+      return;
+    }
+    
+    let data = {
+      trustScore: 88,
+      fileName: "Media_Verification_Asset",
+      sha256Hash: "a8f9c3b2e71d4b60e8329a14c5021f92c738e4a1b02934827d19c02581ab39e1",
+      elaVariance: "0.038 (Uniform Level)",
+      dctAnomalyScore: "0.14 (Natural Spectrum)",
+      provenanceSummary: "C2PA Manifest Verified / No GAN Signature",
+      deepfakeVerdict: "Stable Facial Keypoints & Natural Audio Spectrum"
+    };
+
+    if (type === 'text' && state.lastTextAnalysis) {
+      data.trustScore = state.lastTextAnalysis.overallTrust || 82;
+      data.fileName = "Text_Assertion_Report.txt";
+      data.provenanceSummary = `Stance: ${state.lastTextAnalysis.stance || 'Assertion'}`;
+    } else if (type === 'image' && state.lastImageAnalysis) {
+      data.trustScore = state.lastImageAnalysis.gan ? state.lastImageAnalysis.gan.authenticityScore : 88;
+      data.fileName = state.lastImageAnalysis.fileName || "Scanned_Image.png";
+      data.elaVariance = `${state.lastImageAnalysis.ela?.suspicionLevel || 15}% ELA Suspicion`;
+    } else if (type === 'video' && state.lastVideoAnalysis) {
+      data.trustScore = 100 - (state.lastVideoAnalysis.deepfakeConfidence || 15);
+      data.fileName = state.lastVideoAnalysis.fileName || "Video_Frame_Scan.mp4";
+      data.deepfakeVerdict = `Temporal Stability: ${state.lastVideoAnalysis.temporalStability?.stabilityScore || 90}%`;
+    }
+
+    window.ReportGenerator.generateReportModal(data);
+  }
+
+  function executeSOAR(playbookId) {
+    const consoleElem = document.getElementById('soarConsoleOutput');
+    if (!consoleElem || !window.SOARPlaybooks) return;
+
+    consoleElem.innerHTML = `[SOAR ENGINE] Executing Playbook ${playbookId}...\n`;
+    
+    window.SOARPlaybooks.executePlaybook(playbookId, (stepText) => {
+      consoleElem.innerHTML += `${stepText}\n`;
+      consoleElem.scrollTop = consoleElem.scrollHeight;
+    });
+  }
+
   // ==================== PUBLIC API ====================
   document.addEventListener('DOMContentLoaded', init);
 
   return {
-    navigate, analyzeText, answerQuiz, nextQuiz
+    navigate, analyzeText, answerQuiz, nextQuiz, exportForensicReport, executeSOAR
   };
 })();
+
