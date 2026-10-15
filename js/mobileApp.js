@@ -19,10 +19,19 @@ class MobileAppManager {
   init() {
     this.registerServiceWorker();
     this.setupInstallPrompt();
-    this.setupBottomNav();
-    this.setupShareTarget();
-    this.setupCameraModal();
-    this.checkDeepLinks();
+
+    const onReady = () => {
+      this.setupBottomNav();
+      this.setupShareTarget();
+      this.setupCameraModal();
+      this.checkDeepLinks();
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', onReady);
+    } else {
+      onReady();
+    }
   }
 
   // ═══════════════════════════════════════════════
@@ -151,23 +160,40 @@ class MobileAppManager {
   // 3. MOBILE BOTTOM NAVIGATION
   // ═══════════════════════════════════════════════
 
+  navigateFromBottom(section) {
+    this.haptic('nav');
+    if (window.TruthShield && typeof window.TruthShield.navigate === 'function') {
+      window.TruthShield.navigate(section);
+    } else {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+      const secEl = document.getElementById(section);
+      if (secEl) secEl.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    this.syncBottomNav(section);
+  }
+
+  openCameraFromBottom() {
+    this.haptic('tap');
+    this.openCameraModal('photo');
+  }
+
   setupBottomNav() {
     const navItems = document.querySelectorAll('.bottom-nav-item');
     navItems.forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        const section = btn.dataset.section;
+      btn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         if (btn.id === 'bnav-camera') {
-          this.haptic('tap');
-          this.openCameraModal();
+          this.openCameraFromBottom();
           return;
         }
-
-        if (section && window.TruthShield && window.TruthShield.navigate) {
-          this.haptic('nav');
-          window.TruthShield.navigate(section);
-          this.syncBottomNav(section);
+        const section = btn.dataset.section;
+        if (section) {
+          this.navigateFromBottom(section);
         }
-      });
+      };
     });
   }
 

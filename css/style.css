@@ -3355,16 +3355,18 @@ footer {
   left: 0;
   right: 0;
   height: 64px;
-  background: rgba(11, 19, 36, 0.96);
+  background: rgba(11, 19, 36, 0.98);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(0, 229, 255, 0.2);
+  border-top: 1px solid rgba(0, 229, 255, 0.25);
   padding: 0 8px;
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  z-index: 1000;
+  z-index: 99999 !important;
+  pointer-events: auto !important;
+  overflow: visible;
   justify-content: space-around;
   align-items: center;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
 }
 
 .bottom-nav-item {
@@ -3384,6 +3386,15 @@ footer {
   transition: all 0.2s ease;
   -webkit-tap-highlight-color: transparent;
   min-width: 52px;
+  touch-action: manipulation;
+  pointer-events: auto !important;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Ensure clicks on icons or spans register on the parent button */
+.bottom-nav-item * {
+  pointer-events: none !important;
 }
 
 .bottom-nav-item i {

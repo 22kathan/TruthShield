@@ -700,8 +700,6 @@
   <script src="js/imageAnalyzer.js?v=1.2"></script>
   <script src="js/videoAnalyzer.js?v=1.2"></script>
   <script src="js/app.js?v=1.2"></script>
-  <script src="js/mobileApp.js?v=1.0"></script>
-
   <!-- PWA Floating Install Banner -->
   <div class="pwa-install-banner" id="pwaInstallBanner" style="display: none;">
     <div class="pwa-banner-left">
@@ -768,28 +766,30 @@
 
   <!-- Mobile Bottom Navigation Bar (Phone Ergonomics) -->
   <nav class="mobile-bottom-nav" id="mobileBottomNav">
-    <button class="bottom-nav-item active" data-section="dashboard" id="bnav-dashboard">
+    <button type="button" class="bottom-nav-item active" data-section="dashboard" id="bnav-dashboard" onclick="TruthShieldMobile.navigateFromBottom('dashboard');">
       <i class="fas fa-gauge-high"></i>
       <span>Home</span>
     </button>
-    <button class="bottom-nav-item" data-section="text-analysis" id="bnav-text">
+    <button type="button" class="bottom-nav-item" data-section="text-analysis" id="bnav-text" onclick="TruthShieldMobile.navigateFromBottom('text-analysis');">
       <i class="fas fa-newspaper"></i>
       <span>Text</span>
     </button>
-    <button class="bottom-nav-item camera-action" id="bnav-camera" title="Live Camera Scanner">
+    <button type="button" class="bottom-nav-item camera-action" id="bnav-camera" title="Live Camera Scanner" onclick="TruthShieldMobile.openCameraFromBottom();">
       <div class="camera-btn-circle">
         <i class="fas fa-camera"></i>
       </div>
       <span>Scan</span>
     </button>
-    <button class="bottom-nav-item" data-section="image-analysis" id="bnav-image">
+    <button type="button" class="bottom-nav-item" data-section="image-analysis" id="bnav-image" onclick="TruthShieldMobile.navigateFromBottom('image-analysis');">
       <i class="fas fa-image"></i>
       <span>Image</span>
     </button>
-    <button class="bottom-nav-item" data-section="video-analysis" id="bnav-video">
+    <button type="button" class="bottom-nav-item" data-section="video-analysis" id="bnav-video" onclick="TruthShieldMobile.navigateFromBottom('video-analysis');">
       <i class="fas fa-film"></i>
       <span>Video</span>
     </button>
   </nav>
+
+  <script src="js/mobileApp.js?v=1.2"></script>
 </body>
 </html>
