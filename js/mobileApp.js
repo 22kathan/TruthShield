@@ -49,10 +49,20 @@ class MobileAppManager {
       e.preventDefault();
       this.deferredInstallPrompt = e;
 
+      // Check if user already dismissed in this session
+      if (sessionStorage.getItem('ts_pwa_dismissed') === 'true') return;
+
       // Show floating mobile install banner
       const banner = document.getElementById('pwaInstallBanner');
       if (banner) {
         banner.style.display = 'flex';
+
+        // Auto-dismiss after 10 seconds so it never obstructs reading content
+        setTimeout(() => {
+          if (banner.style.display === 'flex') {
+            this.dismissInstallBanner(false);
+          }
+        }, 10000);
       }
     });
 
@@ -82,15 +92,20 @@ class MobileAppManager {
         console.log('[TruthShield Mobile] User accepted install prompt');
       }
       this.deferredInstallPrompt = null;
-      const banner = document.getElementById('pwaInstallBanner');
-      if (banner) banner.style.display = 'none';
+      this.dismissInstallBanner(false);
     });
   }
 
-  dismissInstallBanner() {
-    this.haptic('tap');
+  dismissInstallBanner(manual = true) {
+    if (manual) this.haptic('tap');
     const banner = document.getElementById('pwaInstallBanner');
-    if (banner) banner.style.display = 'none';
+    if (banner) {
+      banner.style.animation = 'pwaSlideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+      setTimeout(() => {
+        banner.style.display = 'none';
+        banner.style.animation = '';
+      }, 300);
+    }
     // Remember dismissal for this session
     sessionStorage.setItem('ts_pwa_dismissed', 'true');
   }
@@ -249,6 +264,9 @@ class MobileAppManager {
     } catch (err) {
       console.warn('[TruthShield Camera] getUserMedia error:', err);
       // Fallback: trigger native OS file camera picker
+      if (window.TruthShield && window.TruthShield.toast) {
+        window.TruthShield.toast('Live camera stream unavailable or blocked. Opening system camera...', 'info');
+      }
       this.closeCameraModal();
       this.triggerNativeFileCamera();
     }
