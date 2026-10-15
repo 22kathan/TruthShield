@@ -87,14 +87,14 @@ class NLPEngine {
   //  TEXT PREPROCESSING
   // ══════════════════════════════════════
 
-  /** Tokenize, lowercase, remove stopwords, stem basic suffixes */
+  /** Tokenize, lowercase, remove stopwords, stem basic suffixes (Unicode-aware for Indic and international scripts) */
   tokenize(text) {
     return text
       .toLowerCase()
-      .replace(/[^a-z0-9\s]/g, ' ')
+      .replace(/[^\p{L}\p{N}\s]/gu, ' ')
       .split(/\s+/)
-      .filter(w => w.length > 2 && !this.stopwords.has(w))
-      .map(w => this._stem(w));
+      .filter(w => w.length > 1 && !this.stopwords.has(w))
+      .map(w => (/^[a-z]+$/.test(w) ? this._stem(w) : w));
   }
 
   /** Basic Porter-style suffix stripping */
@@ -324,11 +324,12 @@ class NLPEngine {
     const entries = Object.entries(scores);
     entries.sort((a, b) => b[1] - a[1]);
 
-    const [topStance, topScore] = entries[0];
-    const totalScore = entries.reduce((sum, [, s]) => sum + s, 0) || 1;
-    const confidence = Math.min(95, Math.round((topScore / totalScore) * 100));
+    let [topStance, topScore] = entries[0];
+    const totalScore = entries.reduce((sum, [, s]) => sum + s, 0);
 
     const stanceMap = {
+      neutral: { label: 'Neutral / Informational', icon: 'fas fa-circle-info',
+        desc: 'The text uses objective, factual phrasing without strong assertion, hedging, or emotional bias.' },
       asserting: { label: 'Assertive / Claiming', icon: 'fas fa-bullhorn',
         desc: 'The text makes strong, definitive claims. It presents information as established fact without qualification.' },
       hedging: { label: 'Uncertain / Hedging', icon: 'fas fa-scale-balanced',
@@ -341,29 +342,38 @@ class NLPEngine {
         desc: 'The text attributes claims to specific sources. It maintains journalistic distance from the claims.' }
     };
 
-    const stance = stanceMap[topStance];
+    let confidence = 0;
+    let stanceRisk = '';
+
+    if (totalScore === 0 || topScore === 0) {
+      topStance = 'neutral';
+      confidence = 80;
+      stanceRisk = 'Standard informational language with no polarizing stance markers detected.';
+    } else {
+      confidence = Math.min(95, Math.round((topScore / totalScore) * 100));
+      if (topStance === 'asserting' && confidence > 50) {
+        stanceRisk = 'Highly assertive content without attribution is a common misinformation pattern.';
+      } else if (topStance === 'attributing') {
+        stanceRisk = 'Source attribution is a positive indicator of journalistic standards.';
+      } else if (topStance === 'hedging') {
+        stanceRisk = 'Cautious language suggests the author acknowledges uncertainty — generally a good sign.';
+      } else if (topStance === 'denying') {
+        stanceRisk = 'Denial-focused content may be countering misinformation — or spreading counter-narratives. Verify context.';
+      } else if (topStance === 'questioning') {
+        stanceRisk = 'Questioning stance indicates healthy skepticism. Verify whether it leads to fact-checking or conspiracy.';
+      } else {
+        stanceRisk = 'Mixed stance markers detected. Content uses a blend of assertion and qualification.';
+      }
+    }
+
+    const stance = stanceMap[topStance] || stanceMap.neutral;
 
     // Calculate stance distribution for visualization
     const distribution = {};
+    const normBase = totalScore || 1;
     entries.forEach(([key, val]) => {
-      distribution[key] = Math.round((val / totalScore) * 100);
+      distribution[key] = Math.round((val / normBase) * 100);
     });
-
-    // Reliability assessment based on stance
-    let stanceRisk;
-    if (topStance === 'asserting' && confidence > 50) {
-      stanceRisk = 'Highly assertive content without attribution is a common misinformation pattern.';
-    } else if (topStance === 'attributing') {
-      stanceRisk = 'Source attribution is a positive indicator of journalistic standards.';
-    } else if (topStance === 'hedging') {
-      stanceRisk = 'Cautious language suggests the author acknowledges uncertainty — generally a good sign.';
-    } else if (topStance === 'denying') {
-      stanceRisk = 'Denial-focused content may be countering misinformation — or spreading counter-narratives. Verify context.';
-    } else if (topStance === 'questioning') {
-      stanceRisk = 'Questioning stance indicates healthy skepticism. Verify whether it leads to fact-checking or conspiracy.';
-    } else {
-      stanceRisk = 'Mixed stance markers detected. Content uses a blend of assertion and qualification.';
-    }
 
     return {
       stance: topStance,

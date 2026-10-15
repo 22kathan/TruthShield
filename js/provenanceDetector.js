@@ -46,7 +46,10 @@ class ProvenanceDetector {
    */
   async analyzeImage(file, img, elaResult = null, ganResult = null) {
     const name = file.name;
-    const arrayBuffer = await file.arrayBuffer();
+    // Fast, memory-safe slice for EXIF parsing: reads only the header (first 256KB)
+    const sliceSize = Math.min(file.size, 256 * 1024);
+    const slice = file.slice(0, sliceSize);
+    const arrayBuffer = await slice.arrayBuffer();
     const view = new DataView(arrayBuffer);
     
     // 1. Detect platform/app origin from file name
@@ -223,11 +226,14 @@ class ProvenanceDetector {
       }
     }
 
-    // C) Visual geometry heuristic (square, power-of-2 canvas + no EXIF = AI hallmark)
+    // C) Visual geometry heuristic (square, power-of-2 canvas - only corroborative if GAN/AI detected)
     if (img && img.width === img.height && !exif) {
       const aiSizes = [256, 512, 1024, 1536, 2048];
       if (aiSizes.includes(img.width)) {
-        aiPenalty += 30;
+        // Only apply dimension bonus if there is already corroborated GAN or AI evidence; never penalize natural avatars alone
+        if (aiDetection.isAI || (ganResult && ganResult.authenticityScore < 45)) {
+          aiPenalty += 10;
+        }
       }
     }
 
@@ -444,17 +450,19 @@ class ProvenanceDetector {
 
       let offset = 2;
       while (offset < view.byteLength - 4) {
+        if (offset + 4 > view.byteLength) break;
         const marker = view.getUint16(offset);
+        const segmentLength = view.getUint16(offset + 2);
         if (marker === 0xFFE1) {
           // APP1 segment
-          const length = view.getUint16(offset + 2);
-          if (view.getUint32(offset + 4) === 0x45786966) { // "Exif"
+          if (offset + 8 <= view.byteLength && view.getUint32(offset + 4) === 0x45786966) { // "Exif"
             this.parseExifStructure(view, offset + 10, exifResult);
             break;
           }
         }
         if ((marker & 0xFF00) !== 0xFF00) break;
-        offset += 2 + view.getUint16(offset + 2);
+        if (segmentLength < 2 || offset + 2 + segmentLength > view.byteLength) break;
+        offset += 2 + segmentLength;
       }
 
       return exifResult.make || exifResult.model || exifResult.software || exifResult.gps ? exifResult : null;
@@ -629,20 +637,15 @@ class ProvenanceDetector {
       }
     }
 
-    // 3. Visual/Statistical cues
-    if (!isAI && img) {
+    // 3. Dimensional analysis note (does NOT classify as AI without supporting indicators)
+    let isSquareAvatar = false;
+    if (img) {
       const isSquare = img.width === img.height;
       const commonSizes = [256, 512, 1024, 1536, 2048];
-      const isCommonAISize = commonSizes.includes(img.width) && isSquare;
-
-      if (isCommonAISize && !exif) {
-        isAI = true;
-        generator = 'Generative AI (Likely Midjourney or SDXL)';
-        confidence = 65;
-      }
+      isSquareAvatar = commonSizes.includes(img.width) && isSquare;
     }
 
-    return { isAI, generator, confidence };
+    return { isAI, generator, confidence, isSquareAvatar };
   }
 
   /**

@@ -30,6 +30,31 @@ class ImageAnalyzer {
       neuralAnomalies = await window.MLCore.detectNeuralAnomalies(elaCanvas);
     }
 
+    // Run Transformer & Frequency Forensics (DCT II Spectrum + ViT Embeddings)
+    let transformer = null;
+    if (window.TransformerEngine) {
+      try {
+        const scanCanvas = document.createElement('canvas');
+        scanCanvas.width = img.naturalWidth || img.width;
+        scanCanvas.height = img.naturalHeight || img.height;
+        const sCtx = scanCanvas.getContext('2d');
+        sCtx.drawImage(img, 0, 0);
+        transformer = window.TransformerEngine.extractViTFeatureVector(scanCanvas);
+      } catch (err) {
+        console.warn("TransformerEngine analysis warning:", err);
+      }
+    }
+
+    // Run Cryptographic C2PA & Header Provenance Suite
+    let c2paProvenance = null;
+    if (window.ProvenanceSuite) {
+      try {
+        c2paProvenance = await window.ProvenanceSuite.inspectFileProvenance(file);
+      } catch (err) {
+        console.warn("ProvenanceSuite inspection warning:", err);
+      }
+    }
+
     // Calculate overall authenticity score (used by provenance for Truth Graph)
     const elaScore = elaResult.suspicionLevel;
     const metaScore = metadata.trustScore;
@@ -37,7 +62,36 @@ class ImageAnalyzer {
     const ganScore = ganDetection.authenticityScore;
 
     let authenticityScore;
-    if (neuralAnomalies) {
+    if (transformer && c2paProvenance) {
+      const dctScore = Math.round((1 - transformer.dctAnalysis.highFreqAnomalyScore) * 100);
+      const vitScore = Math.round((1 - transformer.syntheticProbability) * 100);
+      const c2paScore = c2paProvenance.hasAITag ? 20 : (c2paProvenance.hasC2PAManifest ? 98 : (c2paProvenance.hasEditingApp ? 65 : 88));
+
+      if (neuralAnomalies) {
+        const blended = (
+          neuralAnomalies.authenticityScore * 0.20 +
+          elaScore * 0.15 +
+          metaScore * 0.10 +
+          statsScore * 0.10 +
+          ganScore * 0.10 +
+          dctScore * 0.15 +
+          vitScore * 0.10 +
+          c2paScore * 0.10
+        );
+        authenticityScore = Math.round(Math.max(0, Math.min(100, blended)));
+      } else {
+        const rawScore = (
+          elaScore * 0.20 +
+          metaScore * 0.15 +
+          statsScore * 0.15 +
+          ganScore * 0.15 +
+          dctScore * 0.15 +
+          vitScore * 0.10 +
+          c2paScore * 0.10
+        );
+        authenticityScore = Math.round(Math.max(0, Math.min(100, rawScore)));
+      }
+    } else if (neuralAnomalies) {
       const blended = (
         neuralAnomalies.authenticityScore * 0.35 +
         elaScore * 0.25 +
@@ -101,6 +155,33 @@ class ImageAnalyzer {
       { label: 'Noise Uniformity', icon: 'fas fa-volume-low', value: noiseAnalysis.uniformityScore, color: this.getScoreColor(noiseAnalysis.uniformityScore) }
     ];
 
+    if (transformer) {
+      const dctScore = Math.round((1 - transformer.dctAnalysis.highFreqAnomalyScore) * 100);
+      const vitScore = Math.round((1 - transformer.syntheticProbability) * 100);
+      breakdown.push({
+        label: 'DCT Frequency Spectrum',
+        icon: 'fas fa-wave-square',
+        value: dctScore,
+        color: this.getScoreColor(dctScore)
+      });
+      breakdown.push({
+        label: 'Vision Transformer (ViT)',
+        icon: 'fas fa-network-wired',
+        value: vitScore,
+        color: this.getScoreColor(vitScore)
+      });
+    }
+
+    if (c2paProvenance) {
+      const c2paScore = c2paProvenance.hasAITag ? 20 : (c2paProvenance.hasC2PAManifest ? 98 : (c2paProvenance.hasEditingApp ? 65 : 88));
+      breakdown.push({
+        label: 'C2PA Provenance Envelope',
+        icon: 'fas fa-certificate',
+        value: c2paScore,
+        color: this.getScoreColor(c2paScore)
+      });
+    }
+
     if (neuralAnomalies) {
       breakdown.push({
         label: 'Neural ELA CNN',
@@ -111,6 +192,49 @@ class ImageAnalyzer {
     }
 
     const flags = this.generateFlags(elaResult, metadata, stats, ganDetection, noiseAnalysis);
+
+    if (transformer) {
+      if (transformer.dctAnalysis.isSyntheticFrequency) {
+        flags.push({
+          type: 'danger',
+          icon: 'fas fa-wave-square',
+          text: `DCT High-Frequency Checkerboard Anomaly: ${transformer.dctAnalysis.frequencyMessage} (Periodicity: ${transformer.dctAnalysis.gridPeriodicity})`
+        });
+      } else {
+        flags.push({
+          type: 'success',
+          icon: 'fas fa-wave-square',
+          text: `DCT Frequency Spectrum normal: ${transformer.dctAnalysis.frequencyMessage}`
+        });
+      }
+
+      if (transformer.syntheticProbability > 0.60) {
+        flags.push({
+          type: 'danger',
+          icon: 'fas fa-network-wired',
+          text: `Vision Transformer (ViT-B/16) flagged synthetic image embeddings (${Math.round(transformer.syntheticProbability * 100)}% synthetic probability).`
+        });
+      }
+    }
+
+    if (c2paProvenance) {
+      if (c2paProvenance.hasC2PAManifest) {
+        flags.push({
+          type: 'success',
+          icon: 'fas fa-certificate',
+          text: `C2PA Provenance Manifest verified intact. Cryptographic content authenticity envelope present.`
+        });
+      }
+      if (c2paProvenance.hasAITag) {
+        const sigNames = c2paProvenance.detectedSignatures.map(s => s.name).join(', ');
+        flags.push({
+          type: 'danger',
+          icon: 'fas fa-robot',
+          text: `Binary metadata signatures match AI generative synthesis tool: ${sigNames}.`
+        });
+      }
+    }
+
     if (neuralAnomalies && neuralAnomalies.anomalyFound) {
       flags.push({
         type: 'danger',
@@ -123,6 +247,7 @@ class ImageAnalyzer {
       authenticityScore, verdict, verdictClass,
       ela: elaResult, metadata, stats, noise: noiseAnalysis, gan: ganDetection,
       neuralAnomalies, predictions, provenance,
+      transformer, c2paProvenance,
       breakdown, flags
     };
   }
@@ -170,15 +295,18 @@ class ImageAnalyzer {
     // Re-encode as JPEG at lower quality
     const jpegDataUrl = canvas.toDataURL('image/jpeg', this.elaQuality);
 
-    // Load recompressed image
+    // Load recompressed image with error safety
     const recompressed = await new Promise((resolve) => {
       const reImg = new Image();
       reImg.onload = () => resolve(reImg);
+      reImg.onerror = () => resolve(null);
       reImg.src = jpegDataUrl;
     });
 
-    // Draw recompressed image
-    ctx.drawImage(recompressed, 0, 0);
+    // Draw recompressed image if available
+    if (recompressed) {
+      ctx.drawImage(recompressed, 0, 0);
+    }
     const recompressedData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
     // Calculate ELA - amplify differences
@@ -451,40 +579,52 @@ class ImageAnalyzer {
     ctx.drawImage(img, 0, 0, size, size);
     const data = ctx.getImageData(0, 0, size, size).data;
 
-    // Check for checkerboard artifacts (common in GANs)
+    // Check for alternating 2x2 checkerboard artifacts typical of transposed convolution upsampling
     let checkerboardScore = 0;
-    for (let y = 1; y < size - 1; y += 2) {
-      for (let x = 1; x < size - 1; x += 2) {
+    let validSampleCount = 0;
+
+    for (let y = 2; y < size - 2; y += 2) {
+      for (let x = 2; x < size - 2; x += 2) {
         const idx = (y * size + x) * 4;
-        const center = data[idx];
-        const left = data[((y) * size + (x - 1)) * 4];
-        const right = data[((y) * size + (x + 1)) * 4];
-        const top = data[((y - 1) * size + x) * 4];
-        const bottom = data[((y + 1) * size + x) * 4];
-        const avg = (left + right + top + bottom) / 4;
-        if (Math.abs(center - avg) > 20) checkerboardScore++;
+        const center = (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
+        const left = (data[(y * size + (x - 1)) * 4] + data[(y * size + (x - 1)) * 4 + 1] + data[(y * size + (x - 1)) * 4 + 2]) / 3;
+        const right = (data[(y * size + (x + 1)) * 4] + data[(y * size + (x + 1)) * 4 + 1] + data[(y * size + (x + 1)) * 4 + 2]) / 3;
+        const top = (data[((y - 1) * size + x) * 4] + data[((y - 1) * size + x) * 4 + 1] + data[((y - 1) * size + x) * 4 + 2]) / 3;
+        const bottom = (data[((y + 1) * size + x) * 4] + data[((y + 1) * size + x) * 4 + 1] + data[((y + 1) * size + x) * 4 + 2]) / 3;
+
+        const hDiff = center - (left + right) / 2;
+        const vDiff = center - (top + bottom) / 2;
+
+        // In a true checkerboard peak, center pixel is simultaneously an extremum along both orthogonal axes
+        if (hDiff * vDiff > 45 && Math.abs(hDiff) > 12 && Math.abs(vDiff) > 12) {
+          checkerboardScore++;
+        }
+        validSampleCount++;
       }
     }
 
-    const totalChecks = ((size - 2) / 2) * ((size - 2) / 2);
-    const checkerboardRatio = checkerboardScore / totalChecks;
+    const checkerboardRatio = validSampleCount > 0 ? (checkerboardScore / validSampleCount) : 0;
 
-    // Check for color banding
+    // Check for unnatural color posterization/banding
     let bandingScore = 0;
-    for (let y = 0; y < size; y++) {
+    for (let y = 0; y < size; y += 2) {
       let runLength = 0;
       let lastVal = -1;
       for (let x = 0; x < size; x++) {
         const idx = (y * size + x) * 4;
-        const val = Math.round(data[idx] / 4) * 4; // Quantize
-        if (val === lastVal) { runLength++; }
-        else { if (runLength > 20) bandingScore++; runLength = 0; }
+        const val = Math.round(data[idx] / 8) * 8; // Quantize
+        if (val === lastVal) { 
+          runLength++; 
+        } else { 
+          if (runLength > 35) bandingScore++; 
+          runLength = 0; 
+        }
         lastVal = val;
       }
     }
 
-    const authenticityScore = checkerboardRatio < 0.05 && bandingScore < 10 ? 80 :
-      checkerboardRatio < 0.1 ? 60 : checkerboardRatio < 0.2 ? 40 : 25;
+    const authenticityScore = checkerboardRatio < 0.04 && bandingScore < 12 ? 85 :
+      checkerboardRatio < 0.08 ? 68 : checkerboardRatio < 0.16 ? 45 : 25;
 
     return { checkerboardRatio: (checkerboardRatio * 100).toFixed(1), bandingScore, authenticityScore };
   }

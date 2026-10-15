@@ -27,12 +27,50 @@ class VideoAnalyzer {
       video.onerror = () => reject(new Error('Failed to load video'));
     });
 
-    const duration = video.duration;
+    const rawDuration = video.duration;
+    const duration = (!rawDuration || isNaN(rawDuration) || !isFinite(rawDuration) || rawDuration <= 0) ? 3.0 : rawDuration;
     const frames = await this.extractFrames(video, duration);
     const consistency = this.analyzeFrameConsistency(frames);
     const faceAnalysis = this.analyzeFaceRegions(frames);
     const temporalArtifacts = this.detectTemporalArtifacts(frames);
-    const audioSync = this.analyzeAudioSync(duration, frames.length);
+
+    // Run Audio Spectrum FFT Analysis (Web Audio API with direct PCM decoding)
+    let audioDeepfake = null;
+    if (window.AudioDeepfakeDetector) {
+      try {
+        audioDeepfake = await window.AudioDeepfakeDetector.analyzeAudioTrack(video, file);
+      } catch (err) {
+        console.warn("AudioDeepfakeDetector audio track warning:", err);
+      }
+    }
+
+    // Run Facial Landmark & Blinking Stability Detection
+    let facialDynamics = null;
+    if (window.AudioDeepfakeDetector) {
+      try {
+        facialDynamics = window.AudioDeepfakeDetector.analyzeFacialLandmarks(frames);
+      } catch (err) {
+        console.warn("AudioDeepfakeDetector facial dynamics warning:", err);
+      }
+    }
+
+    // Run Cryptographic C2PA & Header Provenance Suite
+    let c2paProvenance = null;
+    if (window.ProvenanceSuite) {
+      try {
+        c2paProvenance = await window.ProvenanceSuite.inspectFileProvenance(file);
+      } catch (err) {
+        console.warn("ProvenanceSuite inspection warning:", err);
+      }
+    }
+
+    const audioSync = {
+      audioAnalyzed: audioDeepfake ? audioDeepfake.audioAnalyzed : false,
+      videoDuration: duration.toFixed(1) + 's',
+      framesAnalyzed: frames.length,
+      voiceVerdict: audioDeepfake ? audioDeepfake.voiceVerdict : 'Standard audio track profile',
+      syntheticVoiceProbability: audioDeepfake ? audioDeepfake.syntheticVoiceProbability : 0.20
+    };
 
     // Run Neural Checks FIRST if MLCore is active (before provenance)
     let temporalStability = null;
@@ -44,22 +82,35 @@ class VideoAnalyzer {
     const consistencyScore = consistency.score;
     const faceScore = faceAnalysis.score;
     const temporalScore = temporalArtifacts.score;
+    const consistencyRisk = 100 - consistencyScore;
+    const faceRisk = 100 - faceScore;
+    const temporalRisk = 100 - temporalScore;
+    const voiceRisk = audioDeepfake ? Math.round(audioDeepfake.syntheticVoiceProbability * 100) : 20;
+    const facialMorphRisk = facialDynamics ? Math.round((1 - facialDynamics.facialStabilityScore) * 100) : 20;
+    const c2paRisk = c2paProvenance ? (c2paProvenance.hasAITag ? 85 : (c2paProvenance.hasC2PAManifest ? 5 : 25)) : 25;
 
     let deepfakeConfidence;
     if (temporalStability) {
+      const neuralTemporalRisk = 100 - temporalStability.stabilityScore;
       const rawDeepfake = (
-        (100 - temporalStability.stabilityScore) * 0.35 +
-        (100 - consistencyScore) * 0.25 +
-        (100 - faceScore) * 0.25 +
-        (100 - temporalScore) * 0.15
+        neuralTemporalRisk * 0.20 +
+        consistencyRisk * 0.15 +
+        faceRisk * 0.15 +
+        voiceRisk * 0.20 +
+        facialMorphRisk * 0.15 +
+        c2paRisk * 0.15
       );
       deepfakeConfidence = Math.round(Math.max(0, Math.min(100, rawDeepfake)));
     } else {
-      deepfakeConfidence = Math.round(
-        (100 - consistencyScore) * 0.4 +
-        (100 - faceScore) * 0.35 +
-        (100 - temporalScore) * 0.25
+      const rawDeepfake = (
+        consistencyRisk * 0.20 +
+        faceRisk * 0.20 +
+        temporalRisk * 0.15 +
+        voiceRisk * 0.20 +
+        facialMorphRisk * 0.15 +
+        c2paRisk * 0.10
       );
+      deepfakeConfidence = Math.round(Math.max(0, Math.min(100, rawDeepfake)));
     }
 
     // Run Provenance detection AFTER neural checks
@@ -104,6 +155,57 @@ class VideoAnalyzer {
 
     // Generate flags
     const flags = this.generateFlags(consistency, faceAnalysis, temporalArtifacts, deepfakeConfidence);
+
+    if (audioDeepfake) {
+      if (audioDeepfake.syntheticVoiceProbability > 0.60) {
+        flags.push({
+          type: 'danger',
+          icon: 'fas fa-microphone-slash',
+          text: `${audioDeepfake.voiceVerdict} (Spectral ratio: ${audioDeepfake.highFreqRatio})`
+        });
+      } else {
+        flags.push({
+          type: 'success',
+          icon: 'fas fa-waveform-lines',
+          text: `Audio FFT Analysis: ${audioDeepfake.voiceVerdict}`
+        });
+      }
+    }
+
+    if (facialDynamics) {
+      if (facialDynamics.facialMorphingDetected) {
+        flags.push({
+          type: 'danger',
+          icon: 'fas fa-face-viewfinder',
+          text: `${facialDynamics.verdict} (Facial stability: ${Math.round(facialDynamics.facialStabilityScore * 100)}%, Blinking variance: ${facialDynamics.blinkRhythmVariance})`
+        });
+      } else {
+        flags.push({
+          type: 'success',
+          icon: 'fas fa-face-smile',
+          text: `Facial dynamics & eye blinking rhythm within natural physiological boundaries.`
+        });
+      }
+    }
+
+    if (c2paProvenance) {
+      if (c2paProvenance.hasC2PAManifest) {
+        flags.push({
+          type: 'success',
+          icon: 'fas fa-certificate',
+          text: `C2PA Video Provenance Manifest validated intact.`
+        });
+      }
+      if (c2paProvenance.hasAITag) {
+        const sigNames = c2paProvenance.detectedSignatures.map(s => s.name).join(', ');
+        flags.push({
+          type: 'danger',
+          icon: 'fas fa-film',
+          text: `Binary metadata signatures match AI video synthesis / voice model: ${sigNames}.`
+        });
+      }
+    }
+
     if (temporalStability) {
       if (temporalStability.stabilityScore < 75) {
         flags.push({
@@ -124,7 +226,7 @@ class VideoAnalyzer {
       deepfakeConfidence, verdict, verdictClass, duration: duration.toFixed(1),
       fileSize: this.formatSize(file.size),
       frames, consistency, faceAnalysis, temporalArtifacts, audioSync,
-      temporalStability, provenance,
+      temporalStability, audioDeepfake, facialDynamics, c2paProvenance, provenance,
       flags
     };
   }
@@ -144,8 +246,14 @@ class VideoAnalyzer {
       video.currentTime = time;
 
       await new Promise(resolve => {
-        const onSeeked = () => { video.removeEventListener('seeked', onSeeked); resolve(); };
+        let timer = null;
+        const onSeeked = () => {
+          if (timer) clearTimeout(timer);
+          video.removeEventListener('seeked', onSeeked);
+          resolve();
+        };
         video.addEventListener('seeked', onSeeked);
+        timer = setTimeout(onSeeked, 800); // 800ms safety timeout prevents infinite hang
       });
 
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
