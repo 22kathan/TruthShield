@@ -3242,3 +3242,539 @@ footer {
   margin: 0.15rem 0 0 0;
   line-height: 1.35;
 }
+
+/* ==========================================================================
+   MOBILE PHONE APPLICATION STYLES (PWA & Native Ergonomics)
+   ========================================================================== */
+
+/* PWA Floating Install Banner */
+.pwa-install-banner {
+  position: fixed;
+  bottom: 80px;
+  left: 16px;
+  right: 16px;
+  max-width: 440px;
+  margin: 0 auto;
+  background: rgba(11, 19, 36, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 229, 255, 0.15);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  z-index: 1050;
+  animation: pwaSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes pwaSlideUp {
+  from { transform: translateY(100px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.pwa-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.pwa-banner-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  flex-shrink: 0;
+}
+
+.pwa-banner-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pwa-banner-info strong {
+  font-size: 0.88rem;
+  color: #f8fafc;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pwa-banner-info span {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pwa-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.pwa-banner-close {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 6px;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  transition: color 0.2s;
+}
+
+.pwa-banner-close:hover {
+  color: #e2e8f0;
+}
+
+/* Mobile Bottom Navigation Bar */
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: rgba(11, 19, 36, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(0, 229, 255, 0.2);
+  padding: 0 8px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  z-index: 1000;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.bottom-nav-item {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 10px;
+  font-size: 0.68rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  min-width: 52px;
+}
+
+.bottom-nav-item i {
+  font-size: 1.15rem;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.bottom-nav-item.active {
+  color: #00f5ff;
+}
+
+.bottom-nav-item.active i {
+  color: #00f5ff;
+  transform: translateY(-2px);
+  text-shadow: 0 0 12px rgba(0, 245, 255, 0.6);
+}
+
+/* Elevated Camera Action Button in Center of Bottom Bar */
+.bottom-nav-item.camera-action {
+  position: relative;
+  transform: translateY(-12px);
+  padding: 0;
+}
+
+.camera-btn-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00f5ff, #00ffaa);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 16px rgba(0, 245, 255, 0.4), 0 0 0 4px #0b1324;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease;
+}
+
+.camera-btn-circle i {
+  color: #070b14 !important;
+  font-size: 1.35rem !important;
+  transform: none !important;
+}
+
+.bottom-nav-item.camera-action:active .camera-btn-circle {
+  transform: scale(0.92);
+  box-shadow: 0 2px 8px rgba(0, 245, 255, 0.6), 0 0 0 4px #0b1324;
+}
+
+.bottom-nav-item.camera-action span {
+  margin-top: 4px;
+  font-weight: 600;
+  color: #00ffaa;
+}
+
+/* In-App Mobile Camera Viewfinder Modal */
+.camera-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.camera-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.camera-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  padding-top: max(16px, env(safe-area-inset-top, 16px));
+  background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+}
+
+.camera-title {
+  color: #00f5ff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-shadow: 0 0 8px rgba(0, 245, 255, 0.5);
+}
+
+.camera-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.camera-icon-btn {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s;
+}
+
+.camera-icon-btn:hover {
+  background: rgba(0, 245, 255, 0.2);
+}
+
+.camera-viewfinder-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+}
+
+#cameraPreview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Forensic Scanning Reticle Overlay */
+.camera-reticle {
+  position: absolute;
+  width: 75%;
+  height: 60%;
+  max-width: 480px;
+  max-height: 480px;
+  pointer-events: none;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.4);
+}
+
+.reticle-corner {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: #00f5ff;
+  border-style: solid;
+}
+
+.reticle-corner.tl { top: 0; left: 0; border-width: 3px 0 0 3px; }
+.reticle-corner.tr { top: 0; right: 0; border-width: 3px 3px 0 0; }
+.reticle-corner.bl { bottom: 0; left: 0; border-width: 0 0 3px 3px; }
+.reticle-corner.br { bottom: 0; right: 0; border-width: 0 3px 3px 0; }
+
+.reticle-scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00f5ff, #00ffaa, transparent);
+  box-shadow: 0 0 12px #00f5ff;
+  animation: hudScan 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes hudScan {
+  0% { top: 5%; opacity: 0.3; }
+  50% { opacity: 0.9; }
+  100% { top: 95%; opacity: 0.3; }
+}
+
+.camera-live-badge {
+  position: absolute;
+  top: 75px;
+  left: 20px;
+  background: rgba(11, 19, 36, 0.7);
+  border: 1px solid rgba(0, 245, 255, 0.4);
+  color: #00ffaa;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  backdrop-filter: blur(8px);
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ff3b30;
+  animation: liveDotPulse 1.2s infinite;
+}
+
+@keyframes liveDotPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+.camera-bottom-bar {
+  padding: 20px 24px;
+  padding-bottom: max(24px, env(safe-area-inset-bottom, 24px));
+  background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  z-index: 10;
+}
+
+.camera-mode-tabs {
+  display: flex;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 3px;
+  gap: 4px;
+}
+
+.camera-mode-tab {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.camera-mode-tab.active {
+  background: rgba(0, 245, 255, 0.2);
+  color: #00f5ff;
+}
+
+.camera-shutter-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.camera-shutter-btn {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 4px solid #ffffff;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.camera-shutter-btn:active {
+  transform: scale(0.92);
+}
+
+.shutter-inner {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: background 0.2s;
+}
+
+.camera-shutter-btn:hover .shutter-inner {
+  background: #00f5ff;
+}
+
+.video-shutter .shutter-inner-square {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #ff3b30;
+  transition: all 0.2s;
+}
+
+.video-shutter.recording .shutter-inner-square {
+  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+}
+
+/* Mobile Quick Camera Action Buttons on upload areas */
+.mobile-camera-action-row {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-camera-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: rgba(0, 229, 255, 0.12);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  color: #00f5ff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-camera-trigger:hover {
+  background: rgba(0, 229, 255, 0.22);
+}
+
+/* Share Verdict Button in Result Cards */
+.btn-share-verdict {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #10b981;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-share-verdict:hover {
+  background: rgba(16, 185, 129, 0.25);
+}
+
+/* Responsive Overrides for Mobile Phones */
+@media (max-width: 768px) {
+  /* Show Mobile Bottom Navigation on Phone screens */
+  .mobile-bottom-nav {
+    display: flex;
+  }
+
+  /* Add bottom padding so bottom bar never obscures content */
+  body {
+    padding-bottom: calc(75px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  footer {
+    padding-bottom: calc(85px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* Optimize touch target sizes */
+  .btn, .tab, .bottom-nav-item {
+    touch-action: manipulation;
+  }
+
+  /* Compact hero section for phone screens */
+  .dash-hero {
+    padding: 2.2rem 1rem 1.8rem;
+  }
+
+  .dash-hero h1 {
+    font-size: 1.85rem;
+    line-height: 1.25;
+  }
+
+  .hero-ctas {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .hero-ctas .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Compact metrics grid */
+  .stats-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .stat-div {
+    display: none;
+  }
+
+  /* Upload area touch optimizations */
+  .upload-area {
+    padding: 24px 16px;
+  }
+}

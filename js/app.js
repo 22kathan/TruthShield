@@ -180,11 +180,18 @@ const TruthShield = (() => {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
 
-    document.getElementById(section).classList.add('active');
-    const navLink = document.querySelector(`[data-section="${section}"]`);
+    const secEl = document.getElementById(section);
+    if (secEl) secEl.classList.add('active');
+    const navLink = document.querySelector(`.nav-link[data-section="${section}"]`);
     if (navLink) navLink.classList.add('active');
 
-    document.getElementById('navLinks').classList.remove('open');
+    // Sync mobile bottom navigation bar
+    if (window.TruthShieldMobile && window.TruthShieldMobile.syncBottomNav) {
+      window.TruthShieldMobile.syncBottomNav(section);
+    }
+
+    const navLinks = document.getElementById('navLinks');
+    if (navLinks) navLinks.classList.remove('open');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -302,6 +309,9 @@ const TruthShield = (() => {
 
         hideLoading();
         toast('Text analysis complete!', 'success');
+        if (window.TruthShieldMobile && window.TruthShieldMobile.haptic) {
+          window.TruthShieldMobile.haptic(result.trustScore < 50 ? 'alert' : 'success');
+        }
 
         // Scroll to results
         document.getElementById('textResults').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -507,6 +517,9 @@ const TruthShield = (() => {
 
       hideLoading();
       toast('Image analysis complete!', 'success');
+      if (window.TruthShieldMobile && window.TruthShieldMobile.haptic) {
+        window.TruthShieldMobile.haptic(result.authenticityScore < 50 ? 'alert' : 'success');
+      }
     } catch (err) {
       hideLoading();
       toast('Error analyzing image: ' + err.message, 'error');
@@ -700,6 +713,9 @@ const TruthShield = (() => {
 
       hideLoading();
       toast('Video analysis complete!', 'success');
+      if (window.TruthShieldMobile && window.TruthShieldMobile.haptic) {
+        window.TruthShieldMobile.haptic(result.deepfakeConfidence > 50 ? 'alert' : 'success');
+      }
     } catch (err) {
       hideLoading();
       toast('Error analyzing video: ' + err.message, 'error');

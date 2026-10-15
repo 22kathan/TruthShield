@@ -66,3 +66,43 @@ cd TruthShield
 python -m http.server 8008
 ```
 Open your browser and navigate to `http://localhost:8008`.
+
+---
+
+## 📱 Mobile Phone Application (PWA & Android Native)
+
+TruthShield is engineered as a full-featured mobile phone application with one-handed ergonomics, instant installation, camera verification, and native Android packaging:
+
+### 1. 📲 Progressive Web App (PWA) Installation
+* **Android (Chrome/Edge)**: Open `http://localhost:8008/` on your phone. Tap the floating **Install** banner or choose **⋮ (Menu) → Add to Home screen / Install app**.
+* **iOS (Safari)**: Open the site in Safari, tap the **Share** button (`⎙`), and select **Add to Home Screen**.
+* **Offline Ready**: Powered by Service Worker (`sw.js`) with cache-first asset caching and offline resilience.
+
+### 2. 📸 In-App Live Forensic Camera Scanner
+* Tap the center **Scan** button on the bottom navigation bar or click **Live Camera Scan** to open the full-screen forensic viewfinder.
+* Toggle between **Photo Snap** and **Video Clip Recording (max 10s)** with real-time HUD scanning reticles.
+* Captured media is piped directly into the AI verification pipeline without leaving the app.
+
+### 3. 📳 Haptic Feedback & Native Share Target
+* **Haptic Vibration Feedback**: Distinct vibration patterns on verification completion (double pulse for authentic, urgent warning sequence for flagged deepfakes/misinformation).
+* **Native Web Share Target**: Supports the OS system share sheet (`manifest.json` `share_target`), allowing users to share text, links, or media directly from WhatsApp, Telegram, or Twitter into TruthShield for instant analysis.
+* **One-Tap Share Result**: Forensic verdict cards include a **Share Result** button triggering the native OS share sheet.
+
+### 4. 🤖 Packaging as a Native Android App (.APK) via Capacitor
+TruthShield includes complete Capacitor configuration (`capacitor.config.json` & `package.json`):
+
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Add Android platform project
+npm run cap:add:android
+
+# 3. Synchronize web assets
+npm run cap:sync
+
+# 4. Open in Android Studio to build APK or run on connected device
+npm run cap:open:android
+```
+Once opened in Android Studio, select **Build → Build Bundle(s) / APK(s) → Build APK(s)** to generate `app-debug.apk` or sign for release on Google Play.
+

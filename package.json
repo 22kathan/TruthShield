@@ -1,0 +1,29 @@
+{
+  "name": "truthshield-mobile-app",
+  "version": "1.0.0",
+  "description": "TruthShield AI Media Verification — Mobile Phone Application (PWA & Android Native)",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8008",
+    "cap:add:android": "npx @capacitor/cli add android",
+    "cap:sync": "npx @capacitor/cli sync",
+    "cap:open:android": "npx @capacitor/cli open android",
+    "cap:build:android": "npx @capacitor/cli build android"
+  },
+  "keywords": [
+    "truthshield",
+    "deepfake-detector",
+    "pwa",
+    "mobile-app",
+    "android",
+    "forensics",
+    "media-verification"
+  ],
+  "author": "TruthShield Team",
+  "license": "MIT",
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/core": "^6.0.0"
+  }
+}

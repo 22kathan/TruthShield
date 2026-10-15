@@ -9,6 +9,15 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="css/style.css?v=1.2">
+  <!-- PWA & Mobile Web App Meta -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b1324">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="TruthShield">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/icon.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
 </head>
 <body>
 
@@ -70,6 +79,7 @@
         <h1 data-i18n="hero_title">Stop misinformation<br><em>before it spreads.</em></h1>
         <p class="hero-sub" data-i18n="hero_subtitle">Upload text, images, or videos — TruthShield analyses them for fake news patterns, deepfake artifacts, and digital manipulation in seconds.</p>
         <div class="hero-ctas">
+          <button class="btn btn-primary" onclick="TruthShieldMobile.openCameraModal('photo')"><i class="fas fa-camera"></i> Live Camera Scan</button>
           <button class="btn btn-dark" onclick="TruthShield.navigate('text-analysis')" data-i18n="btn_analyse_text">Analyse Text</button>
           <button class="btn btn-dark" onclick="TruthShield.navigate('image-analysis')" data-i18n="btn_scan_image">Scan Image</button>
           <button class="btn btn-dark" onclick="TruthShield.navigate('video-analysis')" data-i18n="btn_check_video">Check Video</button>
@@ -203,7 +213,10 @@
           <div class="card">
             <p class="card-label" data-i18n="explanation_label">Explanation</p>
             <div class="explanation-text" id="explanationText"></div>
-            <div style="margin-top: 1rem; text-align: right;">
+            <div style="margin-top: 1rem; text-align: right; display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap;">
+              <button class="btn btn-share-verdict" onclick="TruthShieldMobile.shareVerdict('TruthShield Text Analysis', document.getElementById('explanationText').textContent);">
+                <i class="fas fa-share-nodes"></i> Share Result
+              </button>
               <button class="btn btn-primary" onclick="TruthShield.exportForensicReport('text');">
                 <i class="fas fa-file-pdf"></i> Export Forensic PDF Report
               </button>
@@ -245,6 +258,11 @@
           <p class="upload-main" data-i18n="upload_img_main">Drop an image here, or <label for="imageFileInput" class="link">browse</label></p>
           <p class="upload-sub" data-i18n="upload_img_sub">JPG, PNG, WebP · Max 30 MB</p>
           <input type="file" id="imageFileInput" accept="image/*" hidden>
+          <div class="mobile-camera-action-row">
+            <button type="button" class="btn btn-camera-trigger" onclick="TruthShieldMobile.openCameraModal('photo')">
+              <i class="fas fa-camera"></i> Snap with Camera
+            </button>
+          </div>
         </div>
       </div>
 
@@ -344,7 +362,10 @@
           <div class="card">
             <p class="card-label" data-i18n="findings_label">Findings</p>
             <div class="flags-list" id="imageFlags"></div>
-            <div style="margin-top: 1rem; text-align: right;">
+            <div style="margin-top: 1rem; text-align: right; display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap;">
+              <button class="btn btn-share-verdict" onclick="TruthShieldMobile.shareVerdict('TruthShield Image Analysis', 'TruthShield Image Forensic Verification Result');">
+                <i class="fas fa-share-nodes"></i> Share Result
+              </button>
               <button class="btn btn-primary" onclick="TruthShield.exportForensicReport('image');">
                 <i class="fas fa-file-pdf"></i> Export Forensic PDF Report
               </button>
@@ -386,6 +407,11 @@
           <p class="upload-main" data-i18n="upload_vid_main">Drop a video here, or <label for="videoFileInput" class="link">browse</label></p>
           <p class="upload-sub" data-i18n="upload_vid_sub">MP4, WebM, AVI · Max 250 MB</p>
           <input type="file" id="videoFileInput" accept="video/*" hidden>
+          <div class="mobile-camera-action-row">
+            <button type="button" class="btn btn-camera-trigger" onclick="TruthShieldMobile.openCameraModal('video')">
+              <i class="fas fa-video"></i> Record with Camera
+            </button>
+          </div>
         </div>
       </div>
 
@@ -486,7 +512,10 @@
           <div class="card">
             <p class="card-label" data-i18n="detection_results_label">Detection results</p>
             <div class="flags-list" id="videoFlags"></div>
-            <div style="margin-top: 1rem; text-align: right;">
+            <div style="margin-top: 1rem; text-align: right; display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap;">
+              <button class="btn btn-share-verdict" onclick="TruthShieldMobile.shareVerdict('TruthShield Video Analysis', 'TruthShield Video Deepfake Verification Result');">
+                <i class="fas fa-share-nodes"></i> Share Result
+              </button>
               <button class="btn btn-primary" onclick="TruthShield.exportForensicReport('video');">
                 <i class="fas fa-file-pdf"></i> Export Forensic PDF Report
               </button>
@@ -671,5 +700,96 @@
   <script src="js/imageAnalyzer.js?v=1.2"></script>
   <script src="js/videoAnalyzer.js?v=1.2"></script>
   <script src="js/app.js?v=1.2"></script>
+  <script src="js/mobileApp.js?v=1.0"></script>
+
+  <!-- PWA Floating Install Banner -->
+  <div class="pwa-install-banner" id="pwaInstallBanner" style="display: none;">
+    <div class="pwa-banner-left">
+      <img src="assets/icons/icon-192.png" alt="TruthShield App Icon" class="pwa-banner-icon">
+      <div class="pwa-banner-info">
+        <strong>Install TruthShield</strong>
+        <span>One-tap mobile access &amp; camera verification</span>
+      </div>
+    </div>
+    <div class="pwa-banner-actions">
+      <button class="btn btn-small btn-primary" onclick="TruthShieldMobile.promptInstall()">Install</button>
+      <button class="pwa-banner-close" onclick="TruthShieldMobile.dismissInstallBanner()" aria-label="Dismiss"><i class="fas fa-xmark"></i></button>
+    </div>
+  </div>
+
+  <!-- In-App Live Mobile Camera Viewfinder Modal -->
+  <div class="camera-modal-overlay" id="cameraModal" style="display: none;">
+    <div class="camera-container">
+      <div class="camera-top-bar">
+        <span class="camera-title"><i class="fas fa-shield-halved"></i> Live Forensic Scanner</span>
+        <div class="camera-top-actions">
+          <button class="camera-icon-btn" id="cameraSwitchBtn" title="Flip Camera" aria-label="Flip Camera">
+            <i class="fas fa-camera-rotate"></i>
+          </button>
+          <button class="camera-icon-btn" id="cameraCloseBtn" title="Close Camera" aria-label="Close Camera">
+            <i class="fas fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="camera-viewfinder-wrap">
+        <video id="cameraPreview" playsinline autoplay muted></video>
+        <div class="camera-reticle">
+          <div class="reticle-corner tl"></div>
+          <div class="reticle-corner tr"></div>
+          <div class="reticle-corner bl"></div>
+          <div class="reticle-corner br"></div>
+          <div class="reticle-scan-line"></div>
+        </div>
+        <div class="camera-live-badge"><span class="live-dot"></span> LIVE SCANNER</div>
+      </div>
+
+      <div class="camera-bottom-bar">
+        <div class="camera-mode-tabs">
+          <button class="camera-mode-tab active" id="modePhotoBtn" onclick="TruthShieldMobile.openCameraModal('photo')">Photo</button>
+          <button class="camera-mode-tab" id="modeVideoBtn" onclick="TruthShieldMobile.openCameraModal('video')">Video Clip</button>
+        </div>
+
+        <div class="camera-shutter-area">
+          <div id="cameraPhotoControls" class="camera-shutter-row">
+            <button class="camera-shutter-btn" id="cameraSnapBtn" title="Capture and Verify Photo">
+              <div class="shutter-inner"></div>
+            </button>
+          </div>
+          <div id="cameraVideoControls" class="camera-shutter-row" style="display: none;">
+            <button class="camera-shutter-btn video-shutter" id="cameraRecordBtn" title="Record Clip">
+              <div class="shutter-inner-square"></div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Bottom Navigation Bar (Phone Ergonomics) -->
+  <nav class="mobile-bottom-nav" id="mobileBottomNav">
+    <button class="bottom-nav-item active" data-section="dashboard" id="bnav-dashboard">
+      <i class="fas fa-gauge-high"></i>
+      <span>Home</span>
+    </button>
+    <button class="bottom-nav-item" data-section="text-analysis" id="bnav-text">
+      <i class="fas fa-newspaper"></i>
+      <span>Text</span>
+    </button>
+    <button class="bottom-nav-item camera-action" id="bnav-camera" title="Live Camera Scanner">
+      <div class="camera-btn-circle">
+        <i class="fas fa-camera"></i>
+      </div>
+      <span>Scan</span>
+    </button>
+    <button class="bottom-nav-item" data-section="image-analysis" id="bnav-image">
+      <i class="fas fa-image"></i>
+      <span>Image</span>
+    </button>
+    <button class="bottom-nav-item" data-section="video-analysis" id="bnav-video">
+      <i class="fas fa-film"></i>
+      <span>Video</span>
+    </button>
+  </nav>
 </body>
 </html>

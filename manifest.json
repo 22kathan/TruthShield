@@ -1,0 +1,77 @@
+{
+  "name": "TruthShield — AI Media Verification",
+  "short_name": "TruthShield",
+  "description": "On-device AI forensics suite for detecting Deepfakes, AI-generated images, synthetic audio, and misinformation.",
+  "id": "truthshield-app",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#070b14",
+  "theme_color": "#0b1324",
+  "categories": ["security", "news", "utilities", "productivity"],
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "assets/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Camera Scanner",
+      "short_name": "Camera",
+      "description": "Snap a photo directly with camera for live AI detection",
+      "url": "./index.html?action=camera",
+      "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Verify Image",
+      "short_name": "Image",
+      "description": "Upload and check photos for AI generation and tampering",
+      "url": "./index.html?tab=image-analysis",
+      "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Verify Video",
+      "short_name": "Video",
+      "description": "Analyze video frames and audio for synthetic deepfakes",
+      "url": "./index.html?tab=video-analysis",
+      "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Verify Text & News",
+      "short_name": "Text",
+      "description": "Analyze articles, headlines, and web URLs",
+      "url": "./index.html?tab=text-analysis",
+      "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "share_target": {
+    "action": "./index.html",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}
