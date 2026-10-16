@@ -424,6 +424,7 @@ class MobileAppManager {
     input.capture = 'environment';
     input.onchange = (e) => {
       const file = e.target.files[0];
+      input.value = ''; // Reset input so subsequent captures trigger onchange
       if (!file) return;
 
       if (file.type.startsWith('image/')) {

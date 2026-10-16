@@ -7,25 +7,137 @@ class VideoAnalyzer {
     this.frameCount = 10;
   }
 
-  async analyze(file) {
-    const video = document.getElementById('videoPlayer');
-    
-    // Revoke previous blob URL to prevent memory leak
+  /**
+   * Resilient, multi-stage video loader.
+   * Handles Android Scoped Storage / ContentProvider stream stalls,
+   * mobile autoplay/inline decoding policies, and hardware decoder cold starts on the 1st attempt.
+   */
+  async loadVideoSource(video, file) {
     if (video.src && video.src.startsWith('blob:')) {
-      try {
-        URL.revokeObjectURL(video.src);
-      } catch (e) {
-        console.warn("Failed to revoke object URL:", e);
+      try { URL.revokeObjectURL(video.src); } catch (e) {}
+    }
+    video.removeAttribute('src');
+
+    // Configure mobile & media engine attributes
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+    video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', '');
+    video.preload = 'auto';
+    video.crossOrigin = 'anonymous';
+
+    const waitForMetadata = (targetVideo, timeoutMs = 3500) => {
+      return new Promise((resolve, reject) => {
+        if (targetVideo.readyState >= 1 && (targetVideo.duration > 0 || targetVideo.videoWidth > 0)) {
+          resolve();
+          return;
+        }
+
+        let settled = false;
+        let timer = null;
+
+        const onReady = () => {
+          if (!settled) {
+            settled = true;
+            cleanup();
+            resolve();
+          }
+        };
+
+        const onError = (e) => {
+          if (!settled) {
+            settled = true;
+            cleanup();
+            const err = targetVideo.error;
+            reject(new Error(`Video decode error (code: ${err ? err.code : 'unknown'})`));
+          }
+        };
+
+        const cleanup = () => {
+          if (timer) clearTimeout(timer);
+          targetVideo.removeEventListener('loadedmetadata', onReady);
+          targetVideo.removeEventListener('loadeddata', onReady);
+          targetVideo.removeEventListener('canplay', onReady);
+          targetVideo.removeEventListener('durationchange', onReady);
+          targetVideo.removeEventListener('error', onError);
+        };
+
+        targetVideo.addEventListener('loadedmetadata', onReady);
+        targetVideo.addEventListener('loadeddata', onReady);
+        targetVideo.addEventListener('canplay', onReady);
+        targetVideo.addEventListener('durationchange', onReady);
+        targetVideo.addEventListener('error', onError);
+
+        timer = setTimeout(() => {
+          if (!settled) {
+            if (targetVideo.readyState >= 1 || targetVideo.duration > 0 || targetVideo.videoWidth > 0) {
+              settled = true;
+              cleanup();
+              resolve();
+            } else {
+              settled = true;
+              cleanup();
+              reject(new Error('Video metadata timeout'));
+            }
+          }
+        }, timeoutMs);
+      });
+    };
+
+    // Strategy 1: URL.createObjectURL directly on file (Fast path)
+    let fastUrl = null;
+    try {
+      fastUrl = URL.createObjectURL(file);
+      video.src = fastUrl;
+      video.load();
+      await waitForMetadata(video, 3000);
+      return;
+    } catch (err1) {
+      console.warn('TruthShield VideoLoader: Fast path URL.createObjectURL failed, falling back to in-memory Blob:', err1);
+      if (fastUrl) {
+        try { URL.revokeObjectURL(fastUrl); } catch (e) {}
       }
     }
 
-    const url = URL.createObjectURL(file);
-    video.src = url;
+    // Strategy 2: In-Memory Blob buffer (completely avoids Android Scoped Storage / ContentProvider stream stalls)
+    try {
+      const sliceSize = Math.min(file.size, 80 * 1024 * 1024);
+      const buffer = await file.slice(0, sliceSize).arrayBuffer();
+      const inMemoryBlob = new Blob([buffer], { type: file.type || 'video/mp4' });
+      const memUrl = URL.createObjectURL(inMemoryBlob);
+      video.src = memUrl;
+      video.load();
+      await waitForMetadata(video, 4500);
+      return;
+    } catch (err2) {
+      console.warn('TruthShield VideoLoader: In-memory Blob fallback failed, trying FileReader:', err2);
+    }
 
-    await new Promise((resolve, reject) => {
-      video.onloadedmetadata = resolve;
-      video.onerror = () => reject(new Error('Failed to load video'));
-    });
+    // Strategy 3: FileReader DataURL (for videos under 30MB)
+    if (file.size < 30 * 1024 * 1024) {
+      try {
+        const dataUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = () => reject(new Error('FileReader failed'));
+          reader.readAsDataURL(file);
+        });
+        video.src = dataUrl;
+        video.load();
+        await waitForMetadata(video, 4500);
+        return;
+      } catch (err3) {
+        console.warn('TruthShield VideoLoader: FileReader Data URL fallback failed:', err3);
+      }
+    }
+
+    throw new Error('Failed to load video from storage. Please verify the video format (MP4, WebM, MOV).');
+  }
+
+  async analyze(file) {
+    const video = document.getElementById('videoPlayer');
+    await this.loadVideoSource(video, file);
 
     const rawDuration = video.duration;
     const duration = (!rawDuration || isNaN(rawDuration) || !isFinite(rawDuration) || rawDuration <= 0) ? 3.0 : rawDuration;
@@ -75,7 +187,11 @@ class VideoAnalyzer {
     // Run Neural Checks FIRST if MLCore is active (before provenance)
     let temporalStability = null;
     if (window.MLCore && window.MLCore.loaded) {
-      temporalStability = await window.MLCore.analyzeVideoTemporalStability(frames);
+      try {
+        temporalStability = await window.MLCore.analyzeVideoTemporalStability(frames);
+      } catch (mlErr) {
+        console.warn("MLCore video temporal stability check warning:", mlErr);
+      }
     }
 
     // Calculate deepfake confidence (higher = more likely deepfake)
@@ -116,7 +232,11 @@ class VideoAnalyzer {
     // Run Provenance detection AFTER neural checks
     let provenance = null;
     if (window.ProvenanceDetector) {
-      provenance = await window.ProvenanceDetector.analyzeVideo(file, consistency);
+      try {
+        provenance = await window.ProvenanceDetector.analyzeVideo(file, consistency);
+      } catch (provErr) {
+        console.warn("ProvenanceDetector video analysis warning:", provErr);
+      }
 
       // Override provenance scores with neural-enhanced deepfake analysis
       if (provenance && provenance.scores) {
@@ -236,14 +356,30 @@ class VideoAnalyzer {
     const ctx = canvas.getContext('2d');
     const frames = [];
 
+    // Ensure valid width & aspect ratio
+    let vidW = video.videoWidth;
+    let vidH = video.videoHeight;
+
+    if (!vidW || vidW <= 0 || isNaN(vidW)) {
+      // Short delay if hardware decoder is initializing dimensions
+      await new Promise(r => setTimeout(r, 200));
+      vidW = video.videoWidth || 640;
+      vidH = video.videoHeight || 480;
+    }
+
     const targetWidth = 320;
-    const aspect = (video.videoWidth && !isNaN(video.videoWidth)) ? (video.videoHeight / video.videoWidth) : 0.75;
+    const aspect = (vidW > 0 && vidH > 0) ? (vidH / vidW) : 0.75;
     canvas.width = targetWidth;
     canvas.height = Math.round(targetWidth * aspect);
 
     for (let i = 0; i < this.frameCount; i++) {
       const time = (duration * (i + 0.5)) / this.frameCount;
-      video.currentTime = time;
+      
+      try {
+        video.currentTime = Math.min(time, Math.max(0, duration - 0.1));
+      } catch (e) {
+        console.warn('Video seek warning:', e);
+      }
 
       await new Promise(resolve => {
         let timer = null;
@@ -256,8 +392,21 @@ class VideoAnalyzer {
         timer = setTimeout(onSeeked, 800); // 800ms safety timeout prevents infinite hang
       });
 
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      try {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      } catch (drawErr) {
+        console.warn('Frame drawImage warning:', drawErr);
+        // Fallback: draw dark neutral frame
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+
+      let imageData;
+      try {
+        imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      } catch (imgDataErr) {
+        imageData = ctx.createImageData(canvas.width, canvas.height);
+      }
 
       frames.push({
         time: time.toFixed(2),

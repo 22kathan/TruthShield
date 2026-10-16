@@ -20,14 +20,18 @@ class ImageAnalyzer {
     let neuralAnomalies = null;
     let predictions = [];
     if (window.MLCore && window.MLCore.loaded) {
-      predictions = await window.MLCore.classifyImage(img);
+      try {
+        predictions = await window.MLCore.classifyImage(img);
 
-      // Run CNN on ELA frame
-      const elaCanvas = document.createElement('canvas');
-      elaCanvas.width = elaResult.width;
-      elaCanvas.height = elaResult.height;
-      elaCanvas.getContext('2d').putImageData(elaResult.elaImageData, 0, 0);
-      neuralAnomalies = await window.MLCore.detectNeuralAnomalies(elaCanvas);
+        // Run CNN on ELA frame
+        const elaCanvas = document.createElement('canvas');
+        elaCanvas.width = elaResult.width;
+        elaCanvas.height = elaResult.height;
+        elaCanvas.getContext('2d').putImageData(elaResult.elaImageData, 0, 0);
+        neuralAnomalies = await window.MLCore.detectNeuralAnomalies(elaCanvas);
+      } catch (mlErr) {
+        console.warn("MLCore image neural checks warning:", mlErr);
+      }
     }
 
     // Run Transformer & Frequency Forensics (DCT II Spectrum + ViT Embeddings)
@@ -248,29 +252,133 @@ class ImageAnalyzer {
       ela: elaResult, metadata, stats, noise: noiseAnalysis, gan: ganDetection,
       neuralAnomalies, predictions, provenance,
       transformer, c2paProvenance,
-      breakdown, flags
+      breakdown, flags,
+      image: img
     };
   }
 
-  loadImage(file) {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      const url = URL.createObjectURL(file);
-      img.onload = () => {
-        URL.revokeObjectURL(url);
-        resolve(img);
-      };
-      img.onerror = () => {
-        URL.revokeObjectURL(url);
-        reject(new Error('Failed to load image'));
-      };
-      img.src = url;
-    });
+  /**
+   * Resilient, multi-stage image loader.
+   * Handles Android Scoped Storage / ContentProvider stream delays,
+   * high-resolution camera captures, and mobile browser blob URL quirks on the 1st attempt.
+   */
+  async loadImage(file) {
+    if (!file) {
+      throw new Error('No image file provided');
+    }
+
+    // Direct return if already an HTMLImageElement
+    if (file instanceof HTMLImageElement && file.complete && file.naturalWidth > 0) {
+      return file;
+    }
+
+    // Helper: load from URL with timeout & cleanup
+    const loadFromSrc = (src, shouldRevoke = false) => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        let settled = false;
+        let timer = null;
+
+        const cleanup = () => {
+          if (timer) clearTimeout(timer);
+          img.onload = null;
+          img.onerror = null;
+          if (shouldRevoke && src.startsWith('blob:')) {
+            try { URL.revokeObjectURL(src); } catch (e) {}
+          }
+        };
+
+        timer = setTimeout(() => {
+          if (!settled) {
+            settled = true;
+            cleanup();
+            reject(new Error('Image decode timeout'));
+          }
+        }, 4000);
+
+        img.onload = () => {
+          if (!settled) {
+            settled = true;
+            cleanup();
+            if ((img.naturalWidth || img.width) > 0) {
+              resolve(img);
+            } else {
+              reject(new Error('Decoded image has zero dimensions'));
+            }
+          }
+        };
+
+        img.onerror = (e) => {
+          if (!settled) {
+            settled = true;
+            cleanup();
+            reject(new Error('Image decode failed'));
+          }
+        };
+
+        img.src = src;
+      });
+    };
+
+    // Strategy 1: URL.createObjectURL (Fast path)
+    let primaryErr = null;
+    try {
+      const blobUrl = URL.createObjectURL(file);
+      return await loadFromSrc(blobUrl, true);
+    } catch (err1) {
+      primaryErr = err1;
+      console.warn('TruthShield ImageLoader: createObjectURL failed, falling back to FileReader DataURL:', err1);
+    }
+
+    // Strategy 2: FileReader readAsDataURL
+    // Bypasses Android ContentProvider stream timing issues on cold start
+    try {
+      const dataUrl = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error('FileReader failed to read image'));
+        reader.readAsDataURL(file);
+      });
+      return await loadFromSrc(dataUrl, false);
+    } catch (err2) {
+      console.warn('TruthShield ImageLoader: FileReader DataURL failed, falling back to in-memory ArrayBuffer:', err2);
+    }
+
+    // Strategy 3: In-memory ArrayBuffer -> fresh Blob
+    try {
+      const buffer = await file.arrayBuffer();
+      const freshBlob = new Blob([buffer], { type: file.type || 'image/jpeg' });
+      const freshUrl = URL.createObjectURL(freshBlob);
+      return await loadFromSrc(freshUrl, true);
+    } catch (err3) {
+      console.warn('TruthShield ImageLoader: ArrayBuffer Blob fallback failed, trying createImageBitmap:', err3);
+    }
+
+    // Strategy 4: createImageBitmap (Hardware-accelerated native decoder)
+    if (typeof createImageBitmap === 'function') {
+      try {
+        const bitmap = await createImageBitmap(file);
+        const canvas = document.createElement('canvas');
+        canvas.width = bitmap.width;
+        canvas.height = bitmap.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(bitmap, 0, 0);
+        bitmap.close();
+
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+        return await loadFromSrc(dataUrl, false);
+      } catch (err4) {
+        console.warn('TruthShield ImageLoader: createImageBitmap fallback failed:', err4);
+      }
+    }
+
+    throw new Error('Failed to load image from storage. Please verify the file format (JPG, PNG, WebP). ' + (primaryErr ? primaryErr.message : ''));
   }
 
   async performELA(img) {
-    let width = img.width;
-    let height = img.height;
+    let width = img.naturalWidth || img.width;
+    let height = img.naturalHeight || img.height;
     const maxDimension = 800;
     if (width > maxDimension || height > maxDimension) {
       if (width > height) {
@@ -484,8 +592,8 @@ class ImageAnalyzer {
   analyzeStatistics(img) {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    canvas.width = img.width;
-    canvas.height = img.height;
+    canvas.width = img.naturalWidth || img.width;
+    canvas.height = img.naturalHeight || img.height;
     ctx.drawImage(img, 0, 0);
     const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
 
@@ -531,8 +639,8 @@ class ImageAnalyzer {
   analyzeNoise(img) {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    const w = Math.min(img.width, 512);
-    const h = Math.min(img.height, 512);
+    const w = Math.min(img.naturalWidth || img.width, 512);
+    const h = Math.min(img.naturalHeight || img.height, 512);
     canvas.width = w; canvas.height = h;
     ctx.drawImage(img, 0, 0, w, h);
     const data = ctx.getImageData(0, 0, w, h).data;

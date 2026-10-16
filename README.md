@@ -6,26 +6,26 @@ TruthShield is a unified, privacy-first cybersecurity platform designed to comba
 
 <div align="center">
 
-[![Download Android APK](https://img.shields.io/badge/Download-TruthShield.apk%20(v1.3.0)-00E5FF?style=for-the-badge&logo=android&logoColor=0B1324)](https://github.com/22kathan/TruthShield/releases/download/v1.3.0/TruthShield.apk)
-[![Download ZIP Mirror](https://img.shields.io/badge/Download-Android%20ZIP%20Package-00FFA3?style=for-the-badge&logo=files&logoColor=0B1324)](https://github.com/22kathan/TruthShield/releases/download/v1.3.0/TruthShield-Android.zip)
-[![GitHub Release](https://img.shields.io/badge/Release-v1.3.0-7928CA?style=for-the-badge&logo=github&logoColor=white)](https://github.com/22kathan/TruthShield/releases/tag/v1.3.0)
+[![Download Android APK](https://img.shields.io/badge/Download-TruthShield.apk%20(v1.3.1)-00E5FF?style=for-the-badge&logo=android&logoColor=0B1324)](https://github.com/22kathan/TruthShield/releases/download/v1.3.1/TruthShield.apk)
+[![Download ZIP Mirror](https://img.shields.io/badge/Download-Android%20ZIP%20Package-00FFA3?style=for-the-badge&logo=files&logoColor=0B1324)](https://github.com/22kathan/TruthShield/releases/download/v1.3.1/TruthShield-Android.zip)
+[![GitHub Release](https://img.shields.io/badge/Release-v1.3.1-7928CA?style=for-the-badge&logo=github&logoColor=white)](https://github.com/22kathan/TruthShield/releases/tag/v1.3.1)
 [![Mobile Download Portal](https://img.shields.io/badge/Mobile-Download%20Center-FF007A?style=for-the-badge&logo=googlechrome&logoColor=white)](download.html)
 
 </div>
 
 ---
 
-## 📲 Phone Application Download & Installation (v1.3.0)
+## 📲 Phone Application Download & Installation (v1.3.1)
 
 TruthShield provides multiple download mirrors and zero-install options so you can run the app on any phone:
 
 | Method | Link | Format | When to Use |
 | :--- | :--- | :--- | :--- |
-| 🤖 **Direct Android APK** | [📥 **Download TruthShield.apk**](https://github.com/22kathan/TruthShield/releases/download/v1.3.0/TruthShield.apk) | `.apk` (~4.5 MB) | Recommended for standard Android phones (Samsung, OnePlus, Pixel, Motorola) |
-| 📦 **Alternative ZIP Package** | [🗜️ **Download TruthShield-Android.zip**](https://github.com/22kathan/TruthShield/releases/download/v1.3.0/TruthShield-Android.zip) | `.zip` (~4.5 MB) | **Use if your phone browser says "Download Failed"** — ZIP files bypass APK download filters |
+| 🤖 **Direct Android APK** | [📥 **Download TruthShield.apk**](https://github.com/22kathan/TruthShield/releases/download/v1.3.1/TruthShield.apk) | `.apk` (~4.5 MB) | Recommended for standard Android phones (Samsung, OnePlus, Pixel, Motorola) |
+| 📦 **Alternative ZIP Package** | [🗜️ **Download TruthShield-Android.zip**](https://github.com/22kathan/TruthShield/releases/download/v1.3.1/TruthShield-Android.zip) | `.zip` (~4.5 MB) | **Use if your phone browser says "Download Failed"** — ZIP files bypass APK download filters |
 | 🌐 **Dedicated Download Portal** | [📱 **Open Mobile Download Center**](download.html) | Web Portal | Mobile-optimized download page with 1-tap install buttons and visual steps |
 | 🚀 **Instant Mobile Web App** | [⚡ **Launch Web App / PWA**](index.html) | Instant PWA | Zero download required — works on both **Android & iPhone (iOS)** |
-| 🏷️ **All GitHub Releases** | [📦 **View Release v1.3.0 Assets**](https://github.com/22kathan/TruthShield/releases/tag/v1.3.0) | All Formats | Release changelogs, checksums, and source bundles |
+| 🏷️ **All GitHub Releases** | [📦 **View Release v1.3.1 Assets**](https://github.com/22kathan/TruthShield/releases/tag/v1.3.1) | All Formats | Release changelogs, checksums, and source bundles |
 
 ---
 
@@ -35,7 +35,7 @@ If your phone browser gives an error when downloading:
 
 1. **Error: "Download failed" in Phone Browser**:
    * **Fix**: Certain phone browsers (like Xiaomi/Mi, Vivo, Oppo, or in-app WhatsApp/Instagram browsers) block direct `.apk` downloads.
-   * **Solution A**: Tap **[Download TruthShield-Android.zip](https://github.com/22kathan/TruthShield/releases/download/v1.3.0/TruthShield-Android.zip)**. Once downloaded, tap Extract/Unzip and install `TruthShield.apk`.
+   * **Solution A**: Tap **[Download TruthShield-Android.zip](https://github.com/22kathan/TruthShield/releases/download/v1.3.1/TruthShield-Android.zip)**. Once downloaded, tap Extract/Unzip and install `TruthShield.apk`.
    * **Solution B**: Open the link in **Google Chrome** instead of the built-in browser. Long-press the APK link and select **Download link**.
    * **Solution C**: Open [**Instant Web App (index.html)**](index.html) &rarr; tap **⋮ (Menu) &rarr; Add to Home screen / Install app**.
 
@@ -116,9 +116,9 @@ Open your browser and navigate to `http://localhost:8008`.
 TruthShield is engineered as a full-featured mobile phone application with one-handed bottom ergonomics, in-app camera verification, and native packaging:
 
 ### 📥 Download Links
-* **Direct Android APK**: [**TruthShield.apk Download (v1.3.0)**](https://github.com/22kathan/TruthShield/releases/download/v1.3.0/TruthShield.apk)
-* **Alternative ZIP Mirror**: [**TruthShield-Android.zip (Bypasses browser blocks)**](https://github.com/22kathan/TruthShield/releases/download/v1.3.0/TruthShield-Android.zip)
-* **Official v1.3.0 Release**: [**TruthShield v1.3.0 Release Assets**](https://github.com/22kathan/TruthShield/releases/tag/v1.3.0)
+* **Direct Android APK**: [**TruthShield.apk Download (v1.3.1)**](https://github.com/22kathan/TruthShield/releases/download/v1.3.1/TruthShield.apk)
+* **Alternative ZIP Mirror**: [**TruthShield-Android.zip (Bypasses browser blocks)**](https://github.com/22kathan/TruthShield/releases/download/v1.3.1/TruthShield-Android.zip)
+* **Official v1.3.1 Release**: [**TruthShield v1.3.1 Release Assets**](https://github.com/22kathan/TruthShield/releases/tag/v1.3.1)
 * **Mobile Download Portal**: [**download.html**](download.html)
 * **Launch Mobile PWA**: [**https://22kathan.github.io/TruthShield/**](https://22kathan.github.io/TruthShield/)
 * **Direct Source Code**: [**TruthShield main.zip**](https://github.com/22kathan/TruthShield/archive/refs/heads/main.zip)

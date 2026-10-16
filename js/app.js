@@ -356,9 +356,17 @@ const TruthShield = (() => {
     dropZone.addEventListener('drop', (e) => {
       e.preventDefault();
       dropZone.classList.remove('dragover');
-      if (e.dataTransfer.files[0]) processImage(e.dataTransfer.files[0]);
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+        processImage(e.dataTransfer.files[0]);
+      }
     });
-    fileInput.addEventListener('change', () => { if (fileInput.files[0]) processImage(fileInput.files[0]); });
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        fileInput.value = ''; // Reset input so next file pick fires cleanly
+        processImage(file);
+      }
+    });
   }
 
   async function processImage(file) {
@@ -376,14 +384,16 @@ const TruthShield = (() => {
       document.getElementById('imageResultsArea').style.display = 'block';
       document.getElementById('imageDropZone').style.display = 'none';
 
-      // Draw original
+      // Draw original - reuse decoded image without redundant storage reload
       const origCanvas = document.getElementById('originalCanvas');
       const origCtx = origCanvas.getContext('2d');
-      const img = await imageAnalyzer.loadImage(file);
+      const img = result.image || await imageAnalyzer.loadImage(file);
       const maxW = 600;
-      const scale = Math.min(1, maxW / img.width);
-      origCanvas.width = img.width * scale;
-      origCanvas.height = img.height * scale;
+      const imgW = img.naturalWidth || img.width;
+      const imgH = img.naturalHeight || img.height;
+      const scale = Math.min(1, maxW / imgW);
+      origCanvas.width = imgW * scale;
+      origCanvas.height = imgH * scale;
       origCtx.drawImage(img, 0, 0, origCanvas.width, origCanvas.height);
 
       // Draw ELA
@@ -537,9 +547,17 @@ const TruthShield = (() => {
     dropZone.addEventListener('drop', (e) => {
       e.preventDefault();
       dropZone.classList.remove('dragover');
-      if (e.dataTransfer.files[0]) processVideo(e.dataTransfer.files[0]);
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+        processVideo(e.dataTransfer.files[0]);
+      }
     });
-    fileInput.addEventListener('change', () => { if (fileInput.files[0]) processVideo(fileInput.files[0]); });
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        fileInput.value = ''; // Reset input so next file pick fires cleanly
+        processVideo(file);
+      }
+    });
   }
 
   async function processVideo(file) {
