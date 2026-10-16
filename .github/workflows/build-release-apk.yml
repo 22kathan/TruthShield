@@ -3,8 +3,6 @@ name: Build & Release TruthShield Android APK
 on:
   push:
     branches: [ main ]
-    tags:
-      - 'v*'
   workflow_dispatch:
 
 permissions:
@@ -94,8 +92,6 @@ jobs:
             - **Native Share Target**: Supports receiving shared media straight from WhatsApp, Telegram, or Gallery.
             - **Bottom Navigation**: Ergonomic 1-tap switching between Home, Text, Scanner, Image, and Video.
             - **Dedicated Mobile Download Portal**: Accessible via `download.html`.
-          files: |
-            release-output/TruthShield.apk
-            release-output/TruthShield-Android.zip
+          files: release-output/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
