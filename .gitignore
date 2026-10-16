@@ -9,6 +9,8 @@ yarn-error.log*
 www/
 dist/
 build/
+*.apk
+*.zip
 
 # Android build outputs
 android/app/build/

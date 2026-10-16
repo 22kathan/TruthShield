@@ -6,35 +6,43 @@ TruthShield is a unified, privacy-first cybersecurity platform designed to comba
 
 <div align="center">
 
-[![Download Android APK](https://img.shields.io/badge/Download-TruthShield.apk-00E5FF?style=for-the-badge&logo=android&logoColor=0B1324)](https://github.com/22kathan/TruthShield/releases/download/v1.2.0/TruthShield.apk)
-[![Install Mobile PWA](https://img.shields.io/badge/Install-Mobile%20PWA-00FFA3?style=for-the-badge&logo=pwa&logoColor=0B1324)](https://22kathan.github.io/TruthShield/)
-[![GitHub Release](https://img.shields.io/badge/Release-v1.2.0-7928CA?style=for-the-badge&logo=github&logoColor=white)](https://github.com/22kathan/TruthShield/releases/tag/v1.2.0)
-[![GitHub Actions Build](https://img.shields.io/badge/CI%2FCD-APK%20Build-FF007A?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/22kathan/TruthShield/actions)
+[![Download Android APK](https://img.shields.io/badge/Download-TruthShield.apk%20(v1.3.0)-00E5FF?style=for-the-badge&logo=android&logoColor=0B1324)](https://github.com/22kathan/TruthShield/releases/download/v1.3.0/TruthShield.apk)
+[![Download ZIP Mirror](https://img.shields.io/badge/Download-Android%20ZIP%20Package-00FFA3?style=for-the-badge&logo=files&logoColor=0B1324)](https://github.com/22kathan/TruthShield/releases/download/v1.3.0/TruthShield-Android.zip)
+[![GitHub Release](https://img.shields.io/badge/Release-v1.3.0-7928CA?style=for-the-badge&logo=github&logoColor=white)](https://github.com/22kathan/TruthShield/releases/tag/v1.3.0)
+[![Mobile Download Portal](https://img.shields.io/badge/Mobile-Download%20Center-FF007A?style=for-the-badge&logo=googlechrome&logoColor=white)](download.html)
 
 </div>
 
 ---
 
-## 📲 Phone Application Download & Quick Links
+## 📲 Phone Application Download & Installation (v1.3.0)
 
-TruthShield is available as a **Direct Android Application Package (.APK)** and an **Instant Progressive Web App (PWA)** for all phone devices:
+TruthShield provides multiple download mirrors and zero-install options so you can run the app on any phone:
 
-| Method | Download / Access Link | Platform | Description |
+| Method | Link | Format | When to Use |
 | :--- | :--- | :--- | :--- |
-| 🤖 **Android APK** | [📥 **Download TruthShield.apk (Direct)**](https://github.com/22kathan/TruthShield/releases/download/v1.2.0/TruthShield.apk) | Android 8.0+ | Direct `.apk` installation package for all Android phones |
-| 🏷️ **GitHub Release** | [📦 **TruthShield v1.2.0 Release Page**](https://github.com/22kathan/TruthShield/releases/tag/v1.2.0) | Android / Web | Official release notes, checksums, and attached `.apk` asset |
-| ⚡ **GitHub Actions** | [🛠️ **Download Latest APK from Actions**](https://github.com/22kathan/TruthShield/actions) | Android | Automated cloud build artifact updated on every commit |
-| 🌐 **Instant PWA** | [🚀 **Launch Mobile Web App**](https://22kathan.github.io/TruthShield/) | Android / iOS / Safari | Instant home-screen install with zero file download required |
-| 💻 **Source Archive** | [🗜️ **Download Source (.ZIP)**](https://github.com/22kathan/TruthShield/archive/refs/heads/main.zip) | Developer | Full source code with Capacitor Android Studio project |
-
-> [!TIP]
-> **How to install the APK on Android**:
-> 1. Tap [**Download TruthShield.apk**](https://github.com/22kathan/TruthShield/releases/download/v1.2.0/TruthShield.apk) to save the file to your phone.
-> 2. Open the downloaded file from your notifications or `Downloads` folder.
-> 3. If prompted, select **Allow from this source** in Android Settings.
-> 4. Tap **Install** and open **TruthShield** from your apps!
+| 🤖 **Direct Android APK** | [📥 **Download TruthShield.apk**](https://github.com/22kathan/TruthShield/releases/download/v1.3.0/TruthShield.apk) | `.apk` (~4.5 MB) | Recommended for standard Android phones (Samsung, OnePlus, Pixel, Motorola) |
+| 📦 **Alternative ZIP Package** | [🗜️ **Download TruthShield-Android.zip**](https://github.com/22kathan/TruthShield/releases/download/v1.3.0/TruthShield-Android.zip) | `.zip` (~4.5 MB) | **Use if your phone browser says "Download Failed"** — ZIP files bypass APK download filters |
+| 🌐 **Dedicated Download Portal** | [📱 **Open Mobile Download Center**](download.html) | Web Portal | Mobile-optimized download page with 1-tap install buttons and visual steps |
+| 🚀 **Instant Mobile Web App** | [⚡ **Launch Web App / PWA**](index.html) | Instant PWA | Zero download required — works on both **Android & iPhone (iOS)** |
+| 🏷️ **All GitHub Releases** | [📦 **View Release v1.3.0 Assets**](https://github.com/22kathan/TruthShield/releases/tag/v1.3.0) | All Formats | Release changelogs, checksums, and source bundles |
 
 ---
+
+### ⚠️ Phone Browser Troubleshooting: "Download Failed" or "File might be harmful"
+
+If your phone browser gives an error when downloading:
+
+1. **Error: "Download failed" in Phone Browser**:
+   * **Fix**: Certain phone browsers (like Xiaomi/Mi, Vivo, Oppo, or in-app WhatsApp/Instagram browsers) block direct `.apk` downloads.
+   * **Solution A**: Tap **[Download TruthShield-Android.zip](https://github.com/22kathan/TruthShield/releases/download/v1.3.0/TruthShield-Android.zip)**. Once downloaded, tap Extract/Unzip and install `TruthShield.apk`.
+   * **Solution B**: Open the link in **Google Chrome** instead of the built-in browser. Long-press the APK link and select **Download link**.
+   * **Solution C**: Open [**Instant Web App (index.html)**](index.html) &rarr; tap **⋮ (Menu) &rarr; Add to Home screen / Install app**.
+
+2. **Warning: "File might be harmful"**:
+   * **Fix**: This is Google Chrome's standard warning for ANY app installed directly outside the Google Play Store.
+   * Tap **Download anyway** &rarr; open the file &rarr; tap **Install**.
+   * If Google Play Protect displays a prompt, tap **More details** &rarr; **Install anyway**. TruthShield is 100% open-source and privacy-safe.
 
 ## ✨ Key Enterprise Cyber-Security Pillars
 
@@ -108,9 +116,10 @@ Open your browser and navigate to `http://localhost:8008`.
 TruthShield is engineered as a full-featured mobile phone application with one-handed bottom ergonomics, in-app camera verification, and native packaging:
 
 ### 📥 Download Links
-* **Direct Android APK**: [**TruthShield.apk Download (v1.2.0)**](https://github.com/22kathan/TruthShield/releases/download/v1.2.0/TruthShield.apk)
-* **GitHub Releases**: [**TruthShield v1.2.0 Release & Assets**](https://github.com/22kathan/TruthShield/releases/tag/v1.2.0)
-* **GitHub Actions Builds**: [**Automated APK Artifacts**](https://github.com/22kathan/TruthShield/actions)
+* **Direct Android APK**: [**TruthShield.apk Download (v1.3.0)**](https://github.com/22kathan/TruthShield/releases/download/v1.3.0/TruthShield.apk)
+* **Alternative ZIP Mirror**: [**TruthShield-Android.zip (Bypasses browser blocks)**](https://github.com/22kathan/TruthShield/releases/download/v1.3.0/TruthShield-Android.zip)
+* **Official v1.3.0 Release**: [**TruthShield v1.3.0 Release Assets**](https://github.com/22kathan/TruthShield/releases/tag/v1.3.0)
+* **Mobile Download Portal**: [**download.html**](download.html)
 * **Launch Mobile PWA**: [**https://22kathan.github.io/TruthShield/**](https://22kathan.github.io/TruthShield/)
 * **Direct Source Code**: [**TruthShield main.zip**](https://github.com/22kathan/TruthShield/archive/refs/heads/main.zip)
 

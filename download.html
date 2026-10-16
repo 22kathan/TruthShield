@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Download TruthShield Mobile App — Official Android & PWA</title>
+  <meta name="description" content="Download the official TruthShield Android application and PWA for on-device deepfake, video, image, and text misinformation verification.">
+  <meta name="theme-color" content="#070b14">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/icon.svg">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070b14;
+      --card-bg: rgba(11, 19, 36, 0.95);
+      --cyan: #00e5ff;
+      --neon: #00ffa3;
+      --purple: #7928ca;
+      --text: #f0f6fc;
+      --muted: #8b949e;
+      --border: rgba(0, 229, 255, 0.2);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 40px;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(ellipse at 50% -20%, rgba(0, 229, 255, 0.15), transparent 70%),
+        radial-gradient(circle at 100% 100%, rgba(121, 40, 202, 0.1), transparent 50%);
+    }
+    .container {
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .app-icon-wrap {
+      width: 88px;
+      height: 88px;
+      margin: 0 auto 16px;
+      position: relative;
+    }
+    .app-icon {
+      width: 100%;
+      height: 100%;
+      border-radius: 22px;
+      box-shadow: 0 8px 32px rgba(0, 229, 255, 0.35);
+      border: 2px solid var(--cyan);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0d1b2e 0%, #06111f 100%);
+    }
+    .app-icon i {
+      font-size: 44px;
+      color: var(--cyan);
+      filter: drop-shadow(0 0 12px rgba(0, 229, 255, 0.8));
+    }
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: rgba(0, 229, 255, 0.1);
+      border: 1px solid var(--border);
+      color: var(--cyan);
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+      background: linear-gradient(135deg, #ffffff 40%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .subtitle {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .meta-pills {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta-tag {
+      font-size: 11px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .download-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 22px 18px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      margin-bottom: 22px;
+    }
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      padding: 15px 20px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      border: none;
+      outline: none;
+      margin-bottom: 12px;
+    }
+    .btn:active {
+      transform: scale(0.98);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #00e5ff 0%, #00ffa3 100%);
+      color: #070b14;
+      box-shadow: 0 6px 24px rgba(0, 229, 255, 0.4);
+    }
+    .btn-primary:hover {
+      box-shadow: 0 8px 32px rgba(0, 229, 255, 0.6);
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--cyan);
+    }
+    .btn-pwa {
+      background: rgba(121, 40, 202, 0.2);
+      color: #d8b4fe;
+      border: 1px solid rgba(121, 40, 202, 0.4);
+      margin-bottom: 0;
+    }
+    .btn i {
+      font-size: 18px;
+    }
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      color: var(--muted);
+      font-size: 11px;
+      margin: 14px 0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .divider span {
+      padding: 0 10px;
+    }
+    .guide-card {
+      background: rgba(11, 19, 36, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .guide-card h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .step-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      line-height: 1.45;
+      color: #c9d1d9;
+    }
+    .step-num {
+      width: 22px;
+      height: 22px;
+      min-width: 22px;
+      border-radius: 50%;
+      background: rgba(0, 229, 255, 0.15);
+      color: var(--cyan);
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+    .step-item strong {
+      color: #ffffff;
+    }
+    .warning-box {
+      background: rgba(255, 171, 0, 0.08);
+      border: 1px solid rgba(255, 171, 0, 0.3);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-top: 12px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #ffc107;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .warning-box i {
+      font-size: 16px;
+      margin-top: 2px;
+    }
+    .footer-links {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 20px;
+    }
+    .footer-links a {
+      color: var(--cyan);
+      text-decoration: none;
+    }
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="app-icon-wrap">
+        <div class="app-icon">
+          <i class="fas fa-shield-halved"></i>
+        </div>
+      </div>
+      <div class="badge-pill">
+        <i class="fas fa-circle-check"></i> Official Mobile Application
+      </div>
+      <h1>TruthShield</h1>
+      <p class="subtitle">AI-Driven Media Verification & Cyber-SOC Threat Intelligence</p>
+      <div class="meta-pills">
+        <span class="meta-tag">v1.3.0</span>
+        <span class="meta-tag">Android 8.0+</span>
+        <span class="meta-tag">~4.5 MB</span>
+      </div>
+    </header>
+
+    <div class="download-card">
+      <!-- 1. Direct APK Download (Primary) -->
+      <a href="https://github.com/22kathan/TruthShield/releases/download/v1.2.0/TruthShield.apk" class="btn btn-primary" download id="downloadApkBtn">
+        <i class="fab fa-android"></i>
+        <span>Download TruthShield APK</span>
+      </a>
+
+      <!-- 2. Alternative Mirror / ZIP Archive (Bypasses phone browser APK blocking) -->
+      <a href="https://github.com/22kathan/TruthShield/archive/refs/heads/main.zip" class="btn btn-secondary" id="downloadZipBtn">
+        <i class="fas fa-file-zipper"></i>
+        <span>Download ZIP Package (Mirror)</span>
+      </a>
+
+      <div class="divider">
+        <span>Or Use Instant Web App</span>
+      </div>
+
+      <!-- 3. Launch PWA (No download required) -->
+      <a href="index.html" class="btn btn-pwa" id="launchPwaBtn">
+        <i class="fas fa-bolt"></i>
+        <span>Launch App in Browser (Instant PWA)</span>
+      </a>
+    </div>
+
+    <!-- Installation Steps Guide -->
+    <div class="guide-card">
+      <h3><i class="fas fa-circle-info"></i> How to Install on Android</h3>
+      <ul class="step-list">
+        <li class="step-item">
+          <div class="step-num">1</div>
+          <div>Tap <strong>Download TruthShield APK</strong> above.</div>
+        </li>
+        <li class="step-item">
+          <div class="step-num">2</div>
+          <div>If Chrome says <em>"File might be harmful"</em>, tap <strong>Download anyway</strong> (Android shows this for all apps installed outside Google Play).</div>
+        </li>
+        <li class="step-item">
+          <div class="step-num">3</div>
+          <div>When the download finishes, tap <strong>Open</strong> in notifications or your phone's <strong>Downloads</strong> folder.</div>
+        </li>
+        <li class="step-item">
+          <div class="step-num">4</div>
+          <div>Tap <strong>Install</strong>. If prompted, toggle on <strong>Allow from this source</strong> in Settings.</div>
+        </li>
+      </ul>
+
+      <div class="warning-box">
+        <i class="fas fa-triangle-exclamation"></i>
+        <div>
+          <strong>If download fails in your browser:</strong><br>
+          Tap <strong>Launch App in Browser</strong> above, then tap <strong>⋮ (Menu) &rarr; Add to Home screen</strong> to install the exact same native app with 0 file downloads!
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-links">
+      <p>TruthShield is 100% Free &amp; Open Source.</p>
+      <p><a href="https://github.com/22kathan/TruthShield"><i class="fab fa-github"></i> View GitHub Repository</a> &bull; <a href="https://github.com/22kathan/TruthShield/releases">All Releases</a></p>
+    </div>
+  </div>
+
+  <script>
+    // Handle in-app share target or direct install
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>

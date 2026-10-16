@@ -3,10 +3,11 @@
  * Provides offline capabilities, asset caching, and mobile PWA background lifecycle support.
  */
 
-const CACHE_NAME = 'truthshield-v1.2.0';
+const CACHE_NAME = 'truthshield-v1.3.0';
 const STATIC_ASSETS = [
   './',
   './index.html',
+  './download.html',
   './manifest.json',
   './css/style.css',
   './js/app.js',
