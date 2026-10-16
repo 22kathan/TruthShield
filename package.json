@@ -5,8 +5,10 @@
   "main": "index.html",
   "scripts": {
     "start": "python -m http.server 8008",
+    "build": "node scripts/build-www.js",
+    "build:android": "node scripts/build-www.js && npx @capacitor/cli sync android",
     "cap:add:android": "npx @capacitor/cli add android",
-    "cap:sync": "npx @capacitor/cli sync",
+    "cap:sync": "node scripts/build-www.js && npx @capacitor/cli sync",
     "cap:open:android": "npx @capacitor/cli open android",
     "cap:build:android": "npx @capacitor/cli build android"
   },

@@ -1,8 +1,7 @@
 {
   "appId": "com.truthshield.app",
   "appName": "TruthShield",
-  "webDir": ".",
-  "bundledWebRuntime": false,
+  "webDir": "www",
   "server": {
     "androidScheme": "https",
     "cleartext": true

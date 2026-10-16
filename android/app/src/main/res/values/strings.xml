@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">TruthShield</string>
+    <string name="title_activity_main">TruthShield</string>
+    <string name="package_name">com.truthshield.app</string>
+    <string name="custom_url_scheme">com.truthshield.app</string>
+</resources>
